@@ -257,6 +257,14 @@ Debe quedar centralizado y ser fácil de modificar.
 
 Si la animación afecta la precisión del control, debe priorizarse siempre la respuesta del jugador.
 
+La animación puede activarse o desactivarse desde Configuración mediante la opción:
+
+```text
+Animación de canastas
+```
+
+Su estado predeterminado debe ser activado. Al desactivarla, cada cambio de posición debe mostrarse de inmediato, sin transiciones ni copias visuales, manteniendo intacta la misma lógica de juego.
+
 ---
 
 # 9. Movimiento circular
@@ -280,6 +288,10 @@ Ejemplo hacia la derecha:
 ```
 
 La rotación debe mantenerse consistente independientemente de la velocidad con la que el jugador pulse las teclas.
+
+El wrap debe verse como una cinta circular continua: la canasta que sale progresivamente por un borde debe aparecer simultáneamente por el borde opuesto, aprovechando el recorte del campo de juego. No debe verse un teletransporte, una desaparición brusca ni una canasta atravesando todo el campo.
+
+Cualquier representación adicional utilizada para este efecto debe ser exclusivamente visual: no forma parte de las capturas, no modifica el orden lógico de las canastas y debe eliminarse al terminar o interrumpirse la animación. La posición lógica debe actualizarse inmediatamente y una animación activa nunca debe bloquear nuevas pulsaciones.
 
 ---
 
@@ -582,6 +594,8 @@ Parámetros previstos:
 - sonido;
 - música;
 - configuración Custom.
+
+La opción funcional `Animación de canastas` permite activar o desactivar el movimiento visual circular. Su estado predeterminado es activado y puede cambiarse antes de iniciar una partida.
 
 No es necesario implementar todo en v0.1.
 

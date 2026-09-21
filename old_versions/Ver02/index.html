@@ -1,4 +1,4 @@
-<!-- Version: v0.1.2 -->
+<!-- Version: v0.1.1 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,6 +15,7 @@
       --basket-width: 126px;
       --basket-height: 92px;
       --basket-bottom: 26px;
+      --basket-move-duration: 80ms;
       --feedback-duration: 380ms;
       --title-size: 30px;
       --hud-label-size: 14px;
@@ -282,11 +283,9 @@
       width: var(--basket-width);
       height: var(--basket-height);
       bottom: var(--basket-bottom);
-      transition: filter 80ms linear;
+      transition: left var(--basket-move-duration) cubic-bezier(0.15, 0.8, 0.25, 1), filter 80ms linear;
       will-change: left, filter;
     }
-
-    .basket-wrap-clone { z-index: 2; }
 
     .basket.feedback-good { animation: good-flash var(--feedback-duration) ease-out; }
     .basket.feedback-bad { animation: bad-flash var(--feedback-duration) ease-out; }
@@ -369,10 +368,6 @@
         <label class="setting-row" for="soundEnabled">
           <span>Sonidos</span>
           <input id="soundEnabled" type="checkbox" checked>
-        </label>
-        <label class="setting-row" for="basketAnimationEnabled">
-          <span>Animación de canastas</span>
-          <input id="basketAnimationEnabled" type="checkbox" checked>
         </label>
         <button id="settingsBackButton" class="secondary-button" type="button">Volver</button>
       </div>
@@ -484,12 +479,9 @@
     const targetValue = document.querySelector("#targetValue");
     const timeValue = document.querySelector("#timeValue");
     const soundEnabled = document.querySelector("#soundEnabled");
-    const basketAnimationEnabled = document.querySelector("#basketAnimationEnabled");
 
     let basketOrder = [];
     let basketElements = new Map();
-    let basketAnimations = new Set();
-    let basketWrapClones = new Set();
     let activeFruit = null;
     let correct = 0;
     let errors = 0;
@@ -507,6 +499,7 @@
     document.documentElement.style.setProperty("--basket-width", `${GAME_CONFIG.basketWidth}px`);
     document.documentElement.style.setProperty("--basket-height", `${GAME_CONFIG.basketHeight}px`);
     document.documentElement.style.setProperty("--basket-bottom", `${GAME_CONFIG.basketBottom}px`);
+    document.documentElement.style.setProperty("--basket-move-duration", `${GAME_CONFIG.basketMoveDuration}ms`);
     document.documentElement.style.setProperty("--feedback-duration", `${GAME_CONFIG.feedbackDuration}ms`);
     targetValue.textContent = GAME_CONFIG.targetCorrectFruits;
 
@@ -529,7 +522,6 @@
     }
 
     function initializeBaskets() {
-      clearBasketMotion();
       basketOrder = FRUIT_TYPES.map((type) => type.id);
       basketElements = new Map();
       basketsElement.replaceChildren();
@@ -544,89 +536,29 @@
         basketElements.set(type.id, image);
       });
 
-      positionBaskets();
+      positionBaskets(false);
     }
 
     function getColumnCenter(columnIndex) {
       return (playfield.clientWidth / GAME_CONFIG.columnCount) * (columnIndex + 0.5);
     }
 
-    function getBasketLeft(columnIndex) {
-      return getColumnCenter(columnIndex) - GAME_CONFIG.basketWidth / 2;
-    }
-
-    function clearBasketMotion() {
-      basketAnimations.forEach((animation) => animation.cancel());
-      basketAnimations.clear();
-      basketWrapClones.forEach((clone) => clone.remove());
-      basketWrapClones.clear();
-    }
-
-    function animateBasketLeft(element, startLeft, endLeft, onEnd = null, restingLeft = endLeft) {
-      element.style.left = `${restingLeft}px`;
-      const animation = element.animate(
-        [{ left: `${startLeft}px` }, { left: `${endLeft}px` }],
-        {
-          duration: GAME_CONFIG.basketMoveDuration,
-          easing: "cubic-bezier(0.15, 0.8, 0.25, 1)"
-        }
-      );
-
-      basketAnimations.add(animation);
-      const finish = () => {
-        basketAnimations.delete(animation);
-        if (onEnd) onEnd();
-      };
-      animation.addEventListener("finish", finish, { once: true });
-      animation.addEventListener("cancel", finish, { once: true });
-    }
-
-    function positionBaskets() {
+    function positionBaskets(animate = true, wrappedTypeId = null) {
       basketOrder.forEach((typeId, columnIndex) => {
         const basket = basketElements.get(typeId);
-        basket.style.left = `${getBasketLeft(columnIndex)}px`;
-      });
-    }
-
-    function animateBasketRotation(previousOrder, direction, wrappedTypeId) {
-      previousOrder.forEach((typeId, previousColumnIndex) => {
-        const basket = basketElements.get(typeId);
-        const nextColumnIndex = basketOrder.indexOf(typeId);
-        const startLeft = getBasketLeft(previousColumnIndex);
-        const endLeft = getBasketLeft(nextColumnIndex);
-
-        if (typeId !== wrappedTypeId) {
-          animateBasketLeft(basket, startLeft, endLeft);
-          return;
+        const shouldAnimate = animate && typeId !== wrappedTypeId;
+        if (!shouldAnimate) basket.style.transition = "none";
+        basket.style.left = `${getColumnCenter(columnIndex) - basket.offsetWidth / 2}px`;
+        if (!shouldAnimate) {
+          basket.getBoundingClientRect();
+          basket.style.transition = "";
         }
-
-        const exitsLeft = direction === "left";
-        const exitLeft = exitsLeft ? -GAME_CONFIG.basketWidth : playfield.clientWidth;
-        const entryLeft = exitsLeft ? playfield.clientWidth : -GAME_CONFIG.basketWidth;
-        const clone = basket.cloneNode(false);
-        clone.removeAttribute("id");
-        clone.removeAttribute("data-type");
-        clone.classList.remove("feedback-good", "feedback-bad");
-        clone.classList.add("basket-wrap-clone");
-        clone.alt = "";
-        clone.setAttribute("aria-hidden", "true");
-        basketsElement.append(clone);
-        basketWrapClones.add(clone);
-
-        animateBasketLeft(basket, startLeft, exitLeft, null, endLeft);
-        animateBasketLeft(clone, entryLeft, endLeft, () => {
-          clone.remove();
-          basketWrapClones.delete(clone);
-        });
       });
     }
 
     function rotateBaskets(direction) {
       if (gameState !== "playing") return;
 
-      clearBasketMotion();
-      positionBaskets();
-      const previousOrder = basketOrder.slice();
       let wrappedTypeId;
 
       if (direction === "left") {
@@ -637,12 +569,7 @@
         basketOrder.unshift(basketOrder.pop());
       }
 
-      if (!basketAnimationEnabled.checked) {
-        positionBaskets();
-        return;
-      }
-
-      animateBasketRotation(previousOrder, direction, wrappedTypeId);
+      positionBaskets(true, wrappedTypeId);
     }
 
     function chooseWithLimitedStreak(itemCount, lastIndex, streak) {
@@ -815,8 +742,6 @@
     function finishGame() {
       gameState = "finished";
       window.cancelAnimationFrame(animationFrameId);
-      clearBasketMotion();
-      positionBaskets();
       document.querySelector("#finalTime").textContent = formatTime(elapsedMs);
       document.querySelector("#finalCorrect").textContent = correct;
       document.querySelector("#finalErrors").textContent = errors;
@@ -829,7 +754,6 @@
       animationFrameId = 0;
       lastFrameTime = 0;
       activeFruit = null;
-      clearBasketMotion();
       fruitElement.style.display = "none";
       pauseOverlay.classList.remove("visible");
       endOverlay.classList.remove("visible");
@@ -860,8 +784,7 @@
     window.addEventListener("resize", () => {
       updateLayoutScale();
       if (gameState === "playing" || gameState === "paused") {
-        clearBasketMotion();
-        positionBaskets();
+        positionBaskets(false);
         drawFruit();
       }
     });
