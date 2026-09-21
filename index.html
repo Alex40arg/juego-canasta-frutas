@@ -1,0 +1,752 @@
+<!-- Version: v0.1 -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Basket</title>
+  <style>
+    :root {
+      --game-width: 540px;
+      --game-height: 720px;
+      --hud-width: 230px;
+      --layout-gap: 24px;
+      --fruit-size: 76px;
+      --basket-width: 126px;
+      --basket-height: 92px;
+      --basket-bottom: 26px;
+      --basket-move-duration: 80ms;
+      --feedback-duration: 380ms;
+      --title-size: 30px;
+      --hud-label-size: 14px;
+      --hud-value-size: 26px;
+      --ink: #f8f6d8;
+      --gold: #ffd75a;
+      --navy: #071526;
+      --panel: #102d43;
+      --panel-edge: #2a6980;
+      --sky-top: #246b8d;
+      --sky-bottom: #0f344e;
+      --good: #67ff87;
+      --bad: #ff596d;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background: radial-gradient(circle at 50% 20%, #184b66 0%, #081827 58%, #030810 100%);
+      font-family: "Courier New", Consolas, monospace;
+    }
+
+    button,
+    input { font: inherit; }
+
+    main {
+      width: 100%;
+      height: 100%;
+    }
+
+    button {
+      min-width: 210px;
+      padding: 14px 24px;
+      border: 3px solid #fff0a8;
+      border-radius: 7px;
+      color: #152236;
+      background: var(--gold);
+      box-shadow: 0 5px 0 #a96a16, 0 9px 18px rgba(0, 0, 0, 0.34);
+      font-size: 19px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(3px); box-shadow: 0 2px 0 #a96a16; }
+    button:focus-visible { outline: 4px solid #ffffff; outline-offset: 4px; }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .screen.active { display: flex; }
+
+    .menu-screen,
+    .settings-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .menu-panel,
+    .settings-panel {
+      width: min(92vw, 540px);
+      padding: clamp(28px, 6vh, 56px);
+      text-align: center;
+      border: 5px solid var(--panel-edge);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #123b55, #091c30);
+      box-shadow: 0 0 0 5px #06111d, 0 18px 60px rgba(0, 0, 0, 0.5), inset 0 0 28px rgba(77, 212, 255, 0.12);
+    }
+
+    .logo {
+      margin: 0 0 14px;
+      color: var(--gold);
+      font-size: clamp(36px, 7vw, 62px);
+      line-height: 0.94;
+      text-shadow: 4px 4px 0 #a6382e, 0 0 18px rgba(255, 215, 90, 0.35);
+      letter-spacing: -3px;
+    }
+
+    .tagline {
+      margin: 0 0 32px;
+      color: #d1f5ff;
+      font-size: clamp(16px, 2.5vw, 20px);
+      line-height: 1.5;
+    }
+
+    .menu-actions {
+      display: grid;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .secondary-button {
+      color: var(--ink);
+      background: #235873;
+      border-color: #78d9ef;
+      box-shadow: 0 5px 0 #0a293d, 0 9px 18px rgba(0, 0, 0, 0.34);
+    }
+
+    .settings-panel h2 {
+      margin: 0 0 28px;
+      color: var(--gold);
+      font-size: 32px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding: 18px;
+      border: 2px solid #387890;
+      background: rgba(3, 13, 23, 0.5);
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .setting-row input { width: 26px; height: 26px; accent-color: var(--gold); }
+
+    .game-screen {
+      align-items: center;
+      justify-content: center;
+      gap: var(--layout-gap);
+      padding: 16px;
+    }
+
+    .hud {
+      display: flex;
+      flex: 0 0 var(--hud-width);
+      width: var(--hud-width);
+      height: min(var(--game-height), calc(100vh - 32px));
+      flex-direction: column;
+      padding: 22px 18px;
+      border: 5px solid #1f536a;
+      border-radius: 10px;
+      background:
+        linear-gradient(90deg, transparent 49%, rgba(255, 255, 255, 0.035) 50%, transparent 51%),
+        linear-gradient(#12374f, #071726);
+      background-size: 12px 12px, auto;
+      box-shadow: inset 0 0 0 3px #07121d, 0 12px 30px rgba(0, 0, 0, 0.38);
+    }
+
+    .hud-title {
+      margin: 0 0 20px;
+      padding-bottom: 16px;
+      border-bottom: 3px double #3f879d;
+      color: var(--gold);
+      font-size: var(--title-size);
+      line-height: 0.9;
+      text-shadow: 3px 3px 0 #9f3b2c;
+    }
+
+    .stat {
+      margin-bottom: 15px;
+      padding: 9px 10px;
+      border-left: 4px solid #3b92aa;
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    .stat-label {
+      display: block;
+      color: #9bcad7;
+      font-size: var(--hud-label-size);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 2px;
+      color: #ffffff;
+      font-size: var(--hud-value-size);
+      font-weight: 900;
+    }
+
+    .controls-hint {
+      margin: auto 0 0;
+      padding-top: 16px;
+      border-top: 3px double #3f879d;
+      color: #d4edf4;
+      font-size: 14px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .key {
+      display: inline-block;
+      min-width: 28px;
+      margin: 0 2px;
+      padding: 2px 5px;
+      border: 2px solid #c8f4ff;
+      border-radius: 4px;
+      color: #082031;
+      background: #eafcff;
+      box-shadow: 0 2px 0 #6593a1;
+      font-weight: 900;
+    }
+
+    .playfield {
+      position: relative;
+      flex: 0 0 auto;
+      width: min(var(--game-width), calc((100vh - 32px) * 0.75));
+      height: min(var(--game-height), calc(100vh - 32px));
+      overflow: hidden;
+      border: 6px solid #173c51;
+      border-radius: 10px;
+      isolation: isolate;
+      background:
+        linear-gradient(90deg, transparent 24.6%, rgba(173, 230, 245, 0.12) 25%, transparent 25.4%, transparent 49.6%, rgba(173, 230, 245, 0.12) 50%, transparent 50.4%, transparent 74.6%, rgba(173, 230, 245, 0.12) 75%, transparent 75.4%),
+        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 73%, #092538 73%, #071b2a 100%);
+      box-shadow: 0 0 0 3px #06111d, 0 14px 35px rgba(0, 0, 0, 0.45), inset 0 0 42px rgba(6, 13, 24, 0.42);
+    }
+
+    .playfield::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: 0.18;
+      background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 255, 255, 0.1) 4px);
+      pointer-events: none;
+    }
+
+    .fruit,
+    .basket {
+      position: absolute;
+      display: block;
+      object-fit: contain;
+      mix-blend-mode: screen;
+      image-rendering: pixelated;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .fruit {
+      z-index: 3;
+      width: var(--fruit-size);
+      height: var(--fruit-size);
+      will-change: transform;
+    }
+
+    .basket {
+      z-index: 2;
+      width: var(--basket-width);
+      height: var(--basket-height);
+      bottom: var(--basket-bottom);
+      transition: left var(--basket-move-duration) cubic-bezier(0.15, 0.8, 0.25, 1), filter 80ms linear;
+      will-change: left, filter;
+    }
+
+    .basket.feedback-good { animation: good-flash var(--feedback-duration) ease-out; }
+    .basket.feedback-bad { animation: bad-flash var(--feedback-duration) ease-out; }
+
+    @keyframes good-flash {
+      0%, 100% { filter: none; }
+      20%, 65% { filter: drop-shadow(0 0 8px var(--good)) drop-shadow(0 0 18px var(--good)) brightness(1.5); }
+    }
+
+    @keyframes bad-flash {
+      0%, 100% { filter: none; }
+      20%, 65% { filter: drop-shadow(0 0 8px var(--bad)) drop-shadow(0 0 18px var(--bad)) brightness(1.25); }
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      background: rgba(2, 8, 16, 0.8);
+      backdrop-filter: blur(2px);
+    }
+
+    .overlay.visible { display: flex; }
+
+    .overlay-panel {
+      width: min(100%, 400px);
+      padding: 28px 24px;
+      border: 4px solid #6fb7cc;
+      border-radius: 10px;
+      background: #0d2c42;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .overlay h2 {
+      margin: 0 0 16px;
+      color: var(--gold);
+      font-size: clamp(29px, 5vw, 42px);
+      text-shadow: 3px 3px 0 #9f3b2c;
+    }
+
+    .pause-copy { margin: 0; font-size: 18px; }
+
+    .results {
+      display: grid;
+      gap: 9px;
+      margin: 0 0 22px;
+      font-size: 18px;
+      text-align: left;
+    }
+
+    .results div { display: flex; justify-content: space-between; gap: 16px; }
+    .results strong { color: #ffffff; }
+    .end-actions { display: grid; justify-content: center; gap: 13px; }
+    .end-actions button { min-width: 220px; }
+
+    @media (max-width: 840px) {
+      :root { --layout-gap: 10px; --hud-width: 190px; --title-size: 24px; --hud-value-size: 21px; }
+      .game-screen { padding: 10px; }
+      .hud { height: calc(100vh - 20px); padding: 14px 11px; }
+      .playfield { width: min(var(--game-width), calc((100vh - 20px) * 0.75)); height: min(var(--game-height), calc(100vh - 20px)); }
+      .stat { margin-bottom: 9px; padding: 6px 8px; }
+      .controls-hint { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="menuScreen" class="screen menu-screen active" aria-labelledby="gameTitle">
+      <div class="menu-panel">
+        <h1 id="gameTitle" class="logo">FRUIT<br>BASKET</h1>
+        <p class="tagline">Usá <strong>←</strong> y <strong>→</strong> para llevar cada fruta a su canasta.</p>
+        <div class="menu-actions">
+          <button id="playButton" type="button">Jugar</button>
+          <button id="settingsButton" class="secondary-button" type="button">Configuración</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="settingsScreen" class="screen settings-screen" aria-labelledby="settingsTitle">
+      <div class="settings-panel">
+        <h2 id="settingsTitle">Configuración</h2>
+        <label class="setting-row" for="soundEnabled">
+          <span>Sonidos</span>
+          <input id="soundEnabled" type="checkbox" checked>
+        </label>
+        <button id="settingsBackButton" class="secondary-button" type="button">Volver</button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen" aria-label="Partida de Fruit Basket">
+      <aside class="hud" aria-label="Marcador">
+        <h2 class="hud-title">FRUIT<br>BASKET</h2>
+        <div class="stat">
+          <span class="stat-label">Correctas</span>
+          <span id="correctValue" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Errores</span>
+          <span id="errorsValue" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Objetivo</span>
+          <span id="targetValue" class="stat-value">20</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tiempo</span>
+          <span id="timeValue" class="stat-value">00:00.0</span>
+        </div>
+        <p class="controls-hint">
+          <span class="key">←</span><span class="key">→</span><br>
+          mover canastas<br><br>
+          <span class="key">Esc</span> pausa
+        </p>
+      </aside>
+
+      <div id="playfield" class="playfield">
+        <img id="fruit" class="fruit" alt="">
+        <div id="baskets" aria-label="Canastas"></div>
+
+        <div id="pauseOverlay" class="overlay" aria-live="polite">
+          <div class="overlay-panel">
+            <h2>PAUSA</h2>
+            <p class="pause-copy">Presioná <span class="key">Esc</span> para continuar</p>
+          </div>
+        </div>
+
+        <div id="endOverlay" class="overlay" aria-live="polite">
+          <div class="overlay-panel">
+            <h2>¡PARTIDA COMPLETADA!</h2>
+            <div class="results">
+              <div><span>Tiempo total</span><strong id="finalTime">00:00.0</strong></div>
+              <div><span>Correctas</span><strong id="finalCorrect">0</strong></div>
+              <div><span>Errores</span><strong id="finalErrors">0</strong></div>
+            </div>
+            <div class="end-actions">
+              <button id="retryButton" type="button">Reintentar</button>
+              <button id="menuButton" class="secondary-button" type="button">Volver al menú</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const GAME_CONFIG = Object.freeze({
+      columnCount: 4,
+      targetCorrectFruits: 20,
+      fruitFallSpeed: 190,
+      fruitSize: 76,
+      basketWidth: 126,
+      basketHeight: 92,
+      basketBottom: 26,
+      basketMoveDuration: 80,
+      feedbackDuration: 380,
+      maxRandomStreak: 3
+    });
+
+    const FRUIT_TYPES = Object.freeze([
+      { id: "manzana", name: "manzana", fruit: "assets/manzana.png", basket: "assets/canasta_manzana.png" },
+      { id: "pera", name: "pera", fruit: "assets/pera.png", basket: "assets/canasta_pera.png" },
+      { id: "banana", name: "banana", fruit: "assets/banana.png", basket: "assets/canasta_banana.png" },
+      { id: "naranja", name: "naranja", fruit: "assets/naranja.png", basket: "assets/canasta_naranja.png" }
+    ]);
+
+    const screens = {
+      menu: document.querySelector("#menuScreen"),
+      settings: document.querySelector("#settingsScreen"),
+      game: document.querySelector("#gameScreen")
+    };
+
+    const playfield = document.querySelector("#playfield");
+    const fruitElement = document.querySelector("#fruit");
+    const basketsElement = document.querySelector("#baskets");
+    const pauseOverlay = document.querySelector("#pauseOverlay");
+    const endOverlay = document.querySelector("#endOverlay");
+    const correctValue = document.querySelector("#correctValue");
+    const errorsValue = document.querySelector("#errorsValue");
+    const targetValue = document.querySelector("#targetValue");
+    const timeValue = document.querySelector("#timeValue");
+    const soundEnabled = document.querySelector("#soundEnabled");
+
+    let basketOrder = [];
+    let basketElements = new Map();
+    let activeFruit = null;
+    let correct = 0;
+    let errors = 0;
+    let elapsedMs = 0;
+    let lastFrameTime = 0;
+    let animationFrameId = 0;
+    let gameState = "menu";
+    let audioContext = null;
+    let lastFruitIndex = -1;
+    let fruitStreak = 0;
+    let lastColumnIndex = -1;
+    let columnStreak = 0;
+
+    document.documentElement.style.setProperty("--fruit-size", `${GAME_CONFIG.fruitSize}px`);
+    document.documentElement.style.setProperty("--basket-width", `${GAME_CONFIG.basketWidth}px`);
+    document.documentElement.style.setProperty("--basket-height", `${GAME_CONFIG.basketHeight}px`);
+    document.documentElement.style.setProperty("--basket-bottom", `${GAME_CONFIG.basketBottom}px`);
+    document.documentElement.style.setProperty("--basket-move-duration", `${GAME_CONFIG.basketMoveDuration}ms`);
+    document.documentElement.style.setProperty("--feedback-duration", `${GAME_CONFIG.feedbackDuration}ms`);
+    targetValue.textContent = GAME_CONFIG.targetCorrectFruits;
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([screenName, element]) => {
+        element.classList.toggle("active", screenName === name);
+      });
+    }
+
+    function initializeBaskets() {
+      basketOrder = FRUIT_TYPES.map((type) => type.id);
+      basketElements = new Map();
+      basketsElement.replaceChildren();
+
+      FRUIT_TYPES.forEach((type) => {
+        const image = document.createElement("img");
+        image.className = "basket";
+        image.src = type.basket;
+        image.alt = `Canasta de ${type.name}`;
+        image.dataset.type = type.id;
+        basketsElement.append(image);
+        basketElements.set(type.id, image);
+      });
+
+      positionBaskets(false);
+    }
+
+    function getColumnCenter(columnIndex) {
+      return (playfield.clientWidth / GAME_CONFIG.columnCount) * (columnIndex + 0.5);
+    }
+
+    function positionBaskets(animate = true) {
+      basketOrder.forEach((typeId, columnIndex) => {
+        const basket = basketElements.get(typeId);
+        if (!animate) basket.style.transition = "none";
+        basket.style.left = `${getColumnCenter(columnIndex) - basket.offsetWidth / 2}px`;
+        if (!animate) {
+          basket.getBoundingClientRect();
+          basket.style.transition = "";
+        }
+      });
+    }
+
+    function rotateBaskets(direction) {
+      if (gameState !== "playing") return;
+
+      if (direction === "left") {
+        basketOrder.push(basketOrder.shift());
+      } else {
+        basketOrder.unshift(basketOrder.pop());
+      }
+
+      positionBaskets(true);
+    }
+
+    function chooseWithLimitedStreak(itemCount, lastIndex, streak) {
+      let selected = Math.floor(Math.random() * itemCount);
+      if (streak >= GAME_CONFIG.maxRandomStreak && selected === lastIndex) {
+        selected = (selected + 1 + Math.floor(Math.random() * (itemCount - 1))) % itemCount;
+      }
+      return selected;
+    }
+
+    function updateStreak(selected, previous, previousStreak) {
+      return selected === previous ? previousStreak + 1 : 1;
+    }
+
+    function spawnFruit() {
+      const fruitIndex = chooseWithLimitedStreak(FRUIT_TYPES.length, lastFruitIndex, fruitStreak);
+      const columnIndex = chooseWithLimitedStreak(GAME_CONFIG.columnCount, lastColumnIndex, columnStreak);
+
+      fruitStreak = updateStreak(fruitIndex, lastFruitIndex, fruitStreak);
+      columnStreak = updateStreak(columnIndex, lastColumnIndex, columnStreak);
+      lastFruitIndex = fruitIndex;
+      lastColumnIndex = columnIndex;
+
+      activeFruit = {
+        typeId: FRUIT_TYPES[fruitIndex].id,
+        columnIndex,
+        y: -GAME_CONFIG.fruitSize
+      };
+
+      fruitElement.src = FRUIT_TYPES[fruitIndex].fruit;
+      fruitElement.alt = FRUIT_TYPES[fruitIndex].name;
+      fruitElement.style.display = "block";
+      drawFruit();
+    }
+
+    function drawFruit() {
+      if (!activeFruit) return;
+      const x = getColumnCenter(activeFruit.columnIndex) - fruitElement.offsetWidth / 2;
+      fruitElement.style.transform = `translate3d(${x}px, ${activeFruit.y}px, 0)`;
+    }
+
+    function getBasketCaptureY() {
+      const basketTop = playfield.clientHeight - GAME_CONFIG.basketBottom - GAME_CONFIG.basketHeight;
+      return basketTop + GAME_CONFIG.basketHeight * 0.3;
+    }
+
+    function captureFruit() {
+      if (!activeFruit || gameState !== "playing") return;
+
+      const caughtBy = basketOrder[activeFruit.columnIndex];
+      const isCorrect = caughtBy === activeFruit.typeId;
+      const basket = basketElements.get(caughtBy);
+
+      if (isCorrect) {
+        correct += 1;
+        playTone("correct");
+      } else {
+        errors += 1;
+        playTone("error");
+      }
+
+      showBasketFeedback(basket, isCorrect);
+      updateHud();
+      activeFruit = null;
+      fruitElement.style.display = "none";
+
+      if (correct >= GAME_CONFIG.targetCorrectFruits) {
+        finishGame();
+      } else {
+        spawnFruit();
+      }
+    }
+
+    function showBasketFeedback(basket, isCorrect) {
+      const className = isCorrect ? "feedback-good" : "feedback-bad";
+      basket.classList.remove("feedback-good", "feedback-bad");
+      void basket.offsetWidth;
+      basket.classList.add(className);
+      window.setTimeout(() => basket.classList.remove(className), GAME_CONFIG.feedbackDuration);
+    }
+
+    function playTone(kind) {
+      if (!soundEnabled.checked) return;
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!audioContext) audioContext = new AudioContextClass();
+      if (audioContext.state === "suspended") audioContext.resume();
+
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const now = audioContext.currentTime;
+      oscillator.type = kind === "correct" ? "sine" : "square";
+      oscillator.frequency.setValueAtTime(kind === "correct" ? 620 : 185, now);
+      if (kind === "correct") oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.11);
+      gain.gain.setValueAtTime(kind === "correct" ? 0.075 : 0.055, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      oscillator.connect(gain).connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.17);
+    }
+
+    function formatTime(milliseconds) {
+      const totalTenths = Math.floor(milliseconds / 100);
+      const minutes = Math.floor(totalTenths / 600);
+      const seconds = Math.floor((totalTenths % 600) / 10);
+      const tenths = totalTenths % 10;
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${tenths}`;
+    }
+
+    function updateHud() {
+      correctValue.textContent = correct;
+      errorsValue.textContent = errors;
+      timeValue.textContent = formatTime(elapsedMs);
+    }
+
+    function gameLoop(timestamp) {
+      const deltaMs = lastFrameTime ? Math.min(timestamp - lastFrameTime, 50) : 0;
+      lastFrameTime = timestamp;
+
+      if (gameState === "playing" && activeFruit) {
+        elapsedMs += deltaMs;
+        activeFruit.y += GAME_CONFIG.fruitFallSpeed * (deltaMs / 1000);
+        drawFruit();
+
+        if (activeFruit.y + GAME_CONFIG.fruitSize >= getBasketCaptureY()) {
+          captureFruit();
+        }
+
+        updateHud();
+      }
+
+      if (gameState === "playing" || gameState === "paused") {
+        animationFrameId = window.requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function startGame() {
+      window.cancelAnimationFrame(animationFrameId);
+      correct = 0;
+      errors = 0;
+      elapsedMs = 0;
+      lastFrameTime = 0;
+      lastFruitIndex = -1;
+      fruitStreak = 0;
+      lastColumnIndex = -1;
+      columnStreak = 0;
+      gameState = "playing";
+      pauseOverlay.classList.remove("visible");
+      endOverlay.classList.remove("visible");
+      showScreen("game");
+      initializeBaskets();
+      spawnFruit();
+      updateHud();
+      animationFrameId = window.requestAnimationFrame(gameLoop);
+    }
+
+    function togglePause() {
+      if (gameState === "playing") {
+        gameState = "paused";
+        pauseOverlay.classList.add("visible");
+      } else if (gameState === "paused") {
+        gameState = "playing";
+        lastFrameTime = performance.now();
+        pauseOverlay.classList.remove("visible");
+      }
+    }
+
+    function finishGame() {
+      gameState = "finished";
+      window.cancelAnimationFrame(animationFrameId);
+      document.querySelector("#finalTime").textContent = formatTime(elapsedMs);
+      document.querySelector("#finalCorrect").textContent = correct;
+      document.querySelector("#finalErrors").textContent = errors;
+      endOverlay.classList.add("visible");
+    }
+
+    function returnToMenu() {
+      gameState = "menu";
+      window.cancelAnimationFrame(animationFrameId);
+      activeFruit = null;
+      fruitElement.style.display = "none";
+      pauseOverlay.classList.remove("visible");
+      endOverlay.classList.remove("visible");
+      showScreen("menu");
+    }
+
+    document.querySelector("#playButton").addEventListener("click", startGame);
+    document.querySelector("#retryButton").addEventListener("click", startGame);
+    document.querySelector("#menuButton").addEventListener("click", returnToMenu);
+    document.querySelector("#settingsButton").addEventListener("click", () => showScreen("settings"));
+    document.querySelector("#settingsBackButton").addEventListener("click", () => showScreen("menu"));
+
+    window.addEventListener("keydown", (event) => {
+      if (["ArrowLeft", "ArrowRight", "Escape"].includes(event.key)) event.preventDefault();
+      if (event.repeat) return;
+
+      if (event.key === "ArrowLeft") rotateBaskets("left");
+      if (event.key === "ArrowRight") rotateBaskets("right");
+      if (event.key === "Escape" && (gameState === "playing" || gameState === "paused")) togglePause();
+    });
+
+    window.addEventListener("resize", () => {
+      if (gameState === "playing" || gameState === "paused") {
+        positionBaskets(false);
+        drawFruit();
+      }
+    });
+  </script>
+</body>
+</html>
