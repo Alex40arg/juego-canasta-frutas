@@ -1,4 +1,4 @@
-<!-- Version: v0.1.1 -->
+<!-- Version: v0.1 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,7 +20,6 @@
       --title-size: 30px;
       --hud-label-size: 14px;
       --hud-value-size: 26px;
-      --ui-scale: 1;
       --ink: #f8f6d8;
       --gold: #ffd75a;
       --navy: #071526;
@@ -150,23 +149,15 @@
     .game-screen {
       align-items: center;
       justify-content: center;
-      padding: 16px;
-    }
-
-    .game-shell {
-      display: flex;
-      width: calc(var(--hud-width) + var(--layout-gap) + var(--game-width));
-      height: var(--game-height);
       gap: var(--layout-gap);
-      transform: scale(var(--ui-scale));
-      transform-origin: center;
+      padding: 16px;
     }
 
     .hud {
       display: flex;
       flex: 0 0 var(--hud-width);
       width: var(--hud-width);
-      height: var(--game-height);
+      height: min(var(--game-height), calc(100vh - 32px));
       flex-direction: column;
       padding: 22px 18px;
       border: 5px solid #1f536a;
@@ -238,8 +229,8 @@
     .playfield {
       position: relative;
       flex: 0 0 auto;
-      width: var(--game-width);
-      height: var(--game-height);
+      width: min(var(--game-width), calc((100vh - 32px) * 0.75));
+      height: min(var(--game-height), calc(100vh - 32px));
       overflow: hidden;
       border: 6px solid #173c51;
       border-radius: 10px;
@@ -331,7 +322,7 @@
       text-shadow: 3px 3px 0 #9f3b2c;
     }
 
-    .pause-copy { margin: 20px 0 0; font-size: 15px; }
+    .pause-copy { margin: 0; font-size: 18px; }
 
     .results {
       display: grid;
@@ -345,8 +336,15 @@
     .results strong { color: #ffffff; }
     .end-actions { display: grid; justify-content: center; gap: 13px; }
     .end-actions button { min-width: 220px; }
-    .pause-actions { display: grid; justify-content: center; gap: 13px; }
-    .pause-actions button { min-width: 220px; }
+
+    @media (max-width: 840px) {
+      :root { --layout-gap: 10px; --hud-width: 190px; --title-size: 24px; --hud-value-size: 21px; }
+      .game-screen { padding: 10px; }
+      .hud { height: calc(100vh - 20px); padding: 14px 11px; }
+      .playfield { width: min(var(--game-width), calc((100vh - 20px) * 0.75)); height: min(var(--game-height), calc(100vh - 20px)); }
+      .stat { margin-bottom: 9px; padding: 6px 8px; }
+      .controls-hint { font-size: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -374,8 +372,7 @@
     </section>
 
     <section id="gameScreen" class="screen game-screen" aria-label="Partida de Fruit Basket">
-      <div id="gameShell" class="game-shell">
-        <aside class="hud" aria-label="Marcador">
+      <aside class="hud" aria-label="Marcador">
         <h2 class="hud-title">FRUIT<br>BASKET</h2>
         <div class="stat">
           <span class="stat-label">Correctas</span>
@@ -398,20 +395,16 @@
           mover canastas<br><br>
           <span class="key">Esc</span> pausa
         </p>
-        </aside>
+      </aside>
 
-        <div id="playfield" class="playfield">
+      <div id="playfield" class="playfield">
         <img id="fruit" class="fruit" alt="">
         <div id="baskets" aria-label="Canastas"></div>
 
         <div id="pauseOverlay" class="overlay" aria-live="polite">
           <div class="overlay-panel">
             <h2>PAUSA</h2>
-            <div class="pause-actions">
-              <button id="continueButton" type="button">Continuar</button>
-              <button id="pauseMenuButton" class="secondary-button" type="button">Volver al menú</button>
-            </div>
-            <p class="pause-copy">También podés continuar con <span class="key">Esc</span></p>
+            <p class="pause-copy">Presioná <span class="key">Esc</span> para continuar</p>
           </div>
         </div>
 
@@ -429,7 +422,6 @@
             </div>
           </div>
         </div>
-        </div>
       </div>
     </section>
   </main>
@@ -439,11 +431,6 @@
 
     const GAME_CONFIG = Object.freeze({
       columnCount: 4,
-      layoutBaseWidth: 794,
-      layoutBaseHeight: 720,
-      layoutViewportMargin: 32,
-      layoutMaxScale: 1.4,
-      layoutMinScale: 0.65,
       targetCorrectFruits: 20,
       fruitFallSpeed: 190,
       fruitSize: 76,
@@ -469,7 +456,6 @@
     };
 
     const playfield = document.querySelector("#playfield");
-    const gameShell = document.querySelector("#gameShell");
     const fruitElement = document.querySelector("#fruit");
     const basketsElement = document.querySelector("#baskets");
     const pauseOverlay = document.querySelector("#pauseOverlay");
@@ -503,18 +489,6 @@
     document.documentElement.style.setProperty("--feedback-duration", `${GAME_CONFIG.feedbackDuration}ms`);
     targetValue.textContent = GAME_CONFIG.targetCorrectFruits;
 
-    function updateLayoutScale() {
-      const availableWidth = window.innerWidth - GAME_CONFIG.layoutViewportMargin;
-      const availableHeight = window.innerHeight - GAME_CONFIG.layoutViewportMargin;
-      const scale = Math.min(
-        GAME_CONFIG.layoutMaxScale,
-        availableWidth / GAME_CONFIG.layoutBaseWidth,
-        availableHeight / GAME_CONFIG.layoutBaseHeight
-      );
-      const safeScale = Math.max(GAME_CONFIG.layoutMinScale, scale);
-      gameShell.style.setProperty("--ui-scale", safeScale.toFixed(4));
-    }
-
     function showScreen(name) {
       Object.entries(screens).forEach(([screenName, element]) => {
         element.classList.toggle("active", screenName === name);
@@ -543,13 +517,12 @@
       return (playfield.clientWidth / GAME_CONFIG.columnCount) * (columnIndex + 0.5);
     }
 
-    function positionBaskets(animate = true, wrappedTypeId = null) {
+    function positionBaskets(animate = true) {
       basketOrder.forEach((typeId, columnIndex) => {
         const basket = basketElements.get(typeId);
-        const shouldAnimate = animate && typeId !== wrappedTypeId;
-        if (!shouldAnimate) basket.style.transition = "none";
+        if (!animate) basket.style.transition = "none";
         basket.style.left = `${getColumnCenter(columnIndex) - basket.offsetWidth / 2}px`;
-        if (!shouldAnimate) {
+        if (!animate) {
           basket.getBoundingClientRect();
           basket.style.transition = "";
         }
@@ -559,17 +532,13 @@
     function rotateBaskets(direction) {
       if (gameState !== "playing") return;
 
-      let wrappedTypeId;
-
       if (direction === "left") {
-        wrappedTypeId = basketOrder[0];
         basketOrder.push(basketOrder.shift());
       } else {
-        wrappedTypeId = basketOrder[basketOrder.length - 1];
         basketOrder.unshift(basketOrder.pop());
       }
 
-      positionBaskets(true, wrappedTypeId);
+      positionBaskets(true);
     }
 
     function chooseWithLimitedStreak(itemCount, lastIndex, streak) {
@@ -709,7 +678,6 @@
 
     function startGame() {
       window.cancelAnimationFrame(animationFrameId);
-      updateLayoutScale();
       correct = 0;
       errors = 0;
       elapsedMs = 0;
@@ -751,8 +719,6 @@
     function returnToMenu() {
       gameState = "menu";
       window.cancelAnimationFrame(animationFrameId);
-      animationFrameId = 0;
-      lastFrameTime = 0;
       activeFruit = null;
       fruitElement.style.display = "none";
       pauseOverlay.classList.remove("visible");
@@ -763,12 +729,6 @@
     document.querySelector("#playButton").addEventListener("click", startGame);
     document.querySelector("#retryButton").addEventListener("click", startGame);
     document.querySelector("#menuButton").addEventListener("click", returnToMenu);
-    document.querySelector("#continueButton").addEventListener("click", () => {
-      if (gameState === "paused") togglePause();
-    });
-    document.querySelector("#pauseMenuButton").addEventListener("click", () => {
-      if (gameState === "paused") returnToMenu();
-    });
     document.querySelector("#settingsButton").addEventListener("click", () => showScreen("settings"));
     document.querySelector("#settingsBackButton").addEventListener("click", () => showScreen("menu"));
 
@@ -782,14 +742,11 @@
     });
 
     window.addEventListener("resize", () => {
-      updateLayoutScale();
       if (gameState === "playing" || gameState === "paused") {
         positionBaskets(false);
         drawFruit();
       }
     });
-
-    updateLayoutScale();
   </script>
 </body>
 </html>
