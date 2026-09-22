@@ -307,14 +307,11 @@ Cada fruta:
 6. desaparece;
 7. se registra el resultado.
 
-En la primera versión:
+Desde v0.2 puede existir una colección de frutas activas. Cada fruta conserva de forma independiente su tipo, columna, posición vertical, elemento visual y estado.
 
-- una sola fruta simultánea;
-- velocidad fija durante toda la partida.
+La primera fruta aparece al comenzar la partida. Las siguientes aparecen de forma escalonada según `spawnInterval`, siempre que la cantidad activa sea menor que `maxActiveFruits`.
 
-Al finalizar la captura de una fruta debe comenzar la caída de la siguiente prácticamente de inmediato.
-
-Evitar pausas largas entre frutas.
+No deben generarse grupos completos en el mismo instante ni varias frutas en un mismo frame por acumulación de tiempo.
 
 ---
 
@@ -324,33 +321,33 @@ Todas las frutas activas deben utilizar la misma velocidad global de caída.
 
 No utilizar inicialmente frutas con velocidades individuales claramente diferentes.
 
-La dificultad futura puede incluir una progresión gradual de velocidad durante una partida.
+La dificultad puede incluir en el futuro una progresión gradual de velocidad durante una partida.
 
 En ese caso:
 
 - la velocidad global puede aumentar;
 - todas las frutas deben seguir utilizando la velocidad vigente del juego en ese momento.
 
-La progresión de velocidad NO forma parte obligatoria de la v0.1.
+En v0.2 no existe progresión automática: la velocidad seleccionada se mantiene durante toda la partida.
 
 ---
 
 # 12. Frutas simultáneas
 
-La arquitectura debe permitir incorporar posteriormente más de una fruta simultánea.
+"Frutas simultáneas" significa la cantidad máxima de frutas que pueden permanecer activas al mismo tiempo dentro del campo, no que aparezcan exactamente juntas.
 
-Variables futuras de dificultad:
+El flujo es escalonado:
 
-- número máximo de frutas simultáneas;
-- velocidad de caída.
+- aparece la primera fruta al comenzar;
+- cada `spawnInterval` puede aparecer otra si existe un slot disponible;
+- cuando una fruta se captura, su slot vuelve a quedar disponible;
+- el spawn continúa respetando la misma cadencia.
 
 Puede permitirse que dos frutas aparezcan en la misma columna.
 
 No es necesario impedirlo.
 
-Debe evitarse únicamente una superposición visual problemática si durante las pruebas apareciera ese inconveniente.
-
-En v0.1 debe existir solamente una fruta activa por vez.
+Debe evitarse una superposición visual problemática mediante valores razonables de velocidad e intervalo.
 
 ---
 
@@ -363,16 +360,17 @@ El diseño previsto incluye:
 - Difícil;
 - Custom.
 
-Las dos variables principales de dificultad serán:
+Las tres variables principales de dificultad son:
 
 ```text
 velocidad de caída
 cantidad de frutas simultáneas
+intervalo entre spawns
 ```
 
-Posteriormente pueden agregarse otros parámetros si existe una necesidad real.
+Los presets funcionales son Fácil, Normal, Difícil y Custom. Fácil permite una fruta activa y usa velocidad baja e intervalo amplio; Normal permite hasta dos; Difícil permite hasta tres con mayor velocidad e intervalo menor.
 
-Los valores definitivos de cada preset no deben fijarse rígidamente antes de probar el gameplay.
+Los valores están centralizados en `DIFFICULTY_PRESETS` y deben mantenerse fáciles de ajustar.
 
 Deben considerarse valores de balance sujetos a pruebas.
 
@@ -380,17 +378,15 @@ Deben considerarse valores de balance sujetos a pruebas.
 
 # 14. Modo Custom
 
-El modo Custom permitirá posteriormente modificar manualmente parámetros como:
+El modo Custom permite modificar manualmente:
 
 - velocidad de caída;
 - cantidad máxima de frutas simultáneas;
+- intervalo de spawn;
 - cantidad objetivo de frutas;
-- penalización por error;
-- posible progresión de velocidad.
+- penalización por error.
 
-No es necesario implementar todos estos controles en la v0.1.
-
-La arquitectura debe permitir agregarlos posteriormente sin rehacer la mecánica central.
+Los controles utilizan límites conservadores centralizados para impedir valores que rompan el flujo o produzcan superposiciones extremas. No existe persistencia de estas opciones.
 
 ---
 
@@ -404,7 +400,7 @@ Ejemplo:
 Objetivo: 20 frutas correctas
 ```
 
-La cantidad objetivo debe ser configurable posteriormente.
+La cantidad objetivo es configurable antes de comenzar la partida y se mantiene al reintentar.
 
 No utilizar inicialmente una partida limitada exclusivamente por tiempo.
 
@@ -418,19 +414,19 @@ Una captura incorrecta ocurre cuando una fruta entra en una canasta correspondie
 
 Debe registrarse como error.
 
-El juego debe permitir posteriormente configurar si un error:
+El juego permite configurar si un error:
 
 - solamente aumenta el contador de errores;
 - o además resta progreso / puntuación.
 
-No fijar esta penalización de manera irreversible.
-
-En la configuración futura podrá existir una opción equivalente a:
+La opción equivale a:
 
 ```text
 Los errores restan progreso:
 Sí / No
 ```
+
+Cuando está activada, cada error resta una correcta sin permitir que el progreso baje de 0.
 
 ---
 
@@ -586,18 +582,17 @@ Las instrucciones completas deben redactarse cerca del final del proyecto, cuand
 
 La pantalla de configuración debe diseñarse para crecer progresivamente.
 
-Parámetros previstos:
+Parámetros funcionales desde v0.2:
 
 - preset de dificultad;
 - cantidad objetivo;
 - penalización de errores;
 - sonido;
-- música;
 - configuración Custom.
 
 La opción funcional `Animación de canastas` permite activar o desactivar el movimiento visual circular. Su estado predeterminado es activado y puede cambiarse antes de iniciar una partida.
 
-No es necesario implementar todo en v0.1.
+La configuración Custom incluye velocidad global, máximo de frutas activas e intervalo de spawn. La música continúa fuera del alcance actual.
 
 Evitar crear opciones que todavía no tengan función real.
 
@@ -1321,27 +1316,28 @@ No agregar todavía sistemas nuevos si la base necesita correcciones.
 
 ---
 
-# 50. PASO 3 — Sistema de dificultad
+# 50. PASO 3 — Sistema de dificultad (implementado en v0.2)
 
-Implementar:
+Implementado:
 
 - Fácil;
 - Normal;
 - Difícil;
 - Custom.
 
-Definir valores reales basándose en pruebas.
+Los valores iniciales son conservadores y quedan sujetos a pruebas de balance.
 
 Variables:
 
 - velocidad;
-- cantidad simultánea.
+- cantidad simultánea;
+- intervalo de spawn.
 
 ---
 
-# 51. PASO 4 — Múltiples frutas
+# 51. PASO 4 — Múltiples frutas (implementado en v0.2)
 
-Agregar soporte progresivo para:
+Se agregó soporte para:
 
 - 2 frutas;
 - 3 frutas;
@@ -1377,16 +1373,16 @@ No introducir velocidades individuales salvo decisión posterior.
 
 ---
 
-# 53. PASO 6 — Configuración completa
+# 53. PASO 6 — Configuración base (implementada en v0.2)
 
-Implementar los controles definitivos de:
+Se implementaron controles básicos de:
 
 - dificultad;
 - objetivo;
 - penalización;
 - sonido;
 - Custom;
-- parámetros aprobados.
+- velocidad, cantidad activa e intervalo para Custom.
 
 ---
 

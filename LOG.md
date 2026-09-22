@@ -53,3 +53,24 @@
 
 ### Estado
 - Sintaxis JavaScript, assets, IDs y versión verificados automáticamente. Probados en navegador: rotación y wrap en ambos sentidos, secuencia rápida `← ← → ← →`, actualización correcta del orden, una sola copia visual durante el cruce y ninguna copia huérfana al finalizar, capturas posteriores, modos Animación ON/OFF, nueva partida tras cambiar la opción, pausa/continuación y regreso al menú sin errores de consola. Pendiente de evaluación visual manual: sensación subjetiva de continuidad y velocidad del nuevo wrap.
+
+## Ver 04 — v0.2 — 2026-09-21
+
+### Cambios
+- Agregados presets centralizados Fácil, Normal y Difícil, más un modo Custom con límites conservadores para velocidad, máximo de frutas e intervalo de spawn.
+- Reemplazada la fruta única por una colección de frutas activas independientes y un spawn escalonado integrado al game loop.
+- Incorporados objetivo configurable, penalización opcional que resta progreso sin bajar de 0 y dificultad actual en el HUD.
+- Conservadas pausa, controles, sonidos, feedback, animación de canastas, reintento y regreso al menú; todas las frutas comparten una velocidad global fija durante cada partida.
+- Actualizado de forma localizada `DEVELOPMENT_SPEC.md` y preservada v0.1.2 en `old_versions/Ver03/`.
+
+### Motivo
+- Incorporar el primer sistema real de dificultad y múltiples frutas activas sin alterar la mecánica central validada.
+
+### Archivos afectados
+- index.html
+- DEVELOPMENT_SPEC.md
+- LOG.md
+- old_versions/Ver03/ (copia histórica de v0.1.2)
+
+### Estado
+- Sintaxis JavaScript, IDs, assets, versión y diff verificados. Probados en navegador Chromium: Fácil con 1 fruta, Normal con 2, Difícil con 3 y Custom con 4; spawn escalonado, frutas repetidas y en la misma columna, pausa/reanudación sin ráfaga, penalización ON/OFF, límite inferior 0, fin, reintento, menú, animación ON/OFF y limpieza de frutas/copias. Layout sin scroll probado en 1366×768 y 1920×1080, sin errores de consola. Pendiente de prueba manual: balance subjetivo de presets, sensación de control, lectura visual y audición de los sonidos.
