@@ -95,25 +95,3 @@
 
 ### Estado
 - Sintaxis, IDs, versión y diff verificados. Un harness comprobó inicio, mitad, máximo, límites y descenso de velocidad para Fácil, Normal, Difícil y Custom, incluida la normalización de valores invertidos. En navegador Chromium se verificaron los controles Custom, dos frutas con desplazamiento global idéntico, pausa/reanudación, limpieza al volver al menú y ausencia de errores de consola. Pendiente de prueba manual: balance y sensación subjetiva de la aceleración.
-
-## Ver 06 — v0.2.2 — 2026-09-23
-
-### Cambios
-- Sustituida la progresión lineal por una curva de raíz cuadrada, limitada entre 0 y 1, para anticipar la aceleración sin superar la velocidad máxima.
-- Ajustados los rangos de velocidad a 135–190 en Fácil, 180–270 en Normal y 225–350 en Difícil, conservando cantidades activas e intervalos de spawn.
-- Agregados accesos rápidos de objetivo 10, 20, 30 y 50 que actualizan el mismo input numérico y mantienen disponible la entrada manual.
-- Incorporada al HUD una barra de progreso acotada que refleja correctas sobre objetivo y disminuye con las penalizaciones.
-- Ampliado de forma localizada a 400 el límite superior de velocidad Custom y actualizado `DEVELOPMENT_SPEC.md`.
-- Preservada v0.2.1 en `old_versions/Ver05/` mediante una copia textual sin assets.
-
-### Motivo
-- Hacer más perceptible la progresión en partidas cortas y mejorar la lectura y selección del objetivo antes del rediseño visual.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver05/ (copia histórica textual de v0.2.1)
-
-### Estado
-- Sintaxis, versión, presets, límites, curva y diff verificados. Un harness comprobó inicio, avance temprano, progresión continua, máximo, descenso por penalización y barra en 0 %, valores intermedios, 100 % y tope para objetivos 10, 20, 30, 50 y manuales. En navegador Chromium se verificaron los cuatro accesos rápidos, entrada manual, Fácil, Normal, Difícil y Custom, múltiples frutas, pausa, fin, reintento, menú, animación ON/OFF y layouts 1366×768 / 1920×1080 sin scroll ni errores de consola. Pendiente de prueba manual: balance y sensación subjetiva de la nueva aceleración.

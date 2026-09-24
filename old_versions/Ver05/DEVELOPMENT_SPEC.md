@@ -321,11 +321,10 @@ Todas las frutas activas deben utilizar la misma velocidad global de caída.
 
 No utilizar frutas con velocidades individuales diferentes.
 
-Desde v0.2.1, cada dificultad define una velocidad inicial y una velocidad máxima. Desde v0.2.2, la velocidad global aumenta con una curva suave no lineal para que el cambio resulte perceptible desde los primeros aciertos, incluso en partidas cortas:
+Desde v0.2.1, cada dificultad define una velocidad inicial y una velocidad máxima. La velocidad global aumenta de forma continua según el progreso de correctas respecto del objetivo:
 
 ```text
-progreso bruto = correctas / objetivo
-progreso = raíz cuadrada de limitar(progreso bruto, 0, 1)
+progreso = correctas / objetivo
 velocidad actual = velocidad inicial + (velocidad máxima - velocidad inicial) × progreso
 ```
 
@@ -371,7 +370,7 @@ cantidad de frutas simultáneas
 intervalo entre spawns
 ```
 
-Los presets funcionales son Fácil, Normal, Difícil y Custom. Cada uno define `startFallSpeed` y `maxFallSpeed`. Fácil utiliza 135–190 y permite una fruta activa con intervalo de 1500 ms; Normal utiliza 180–270 y permite hasta dos con intervalo de 1150 ms; Difícil utiliza 225–350 y permite hasta tres con intervalo de 850 ms.
+Los presets funcionales son Fácil, Normal, Difícil y Custom. Cada uno define `startFallSpeed` y `maxFallSpeed`. Fácil permite una fruta activa y usa el rango más bajo con intervalo amplio; Normal permite hasta dos; Difícil permite hasta tres con el rango más alto e intervalo menor.
 
 Los valores están centralizados en `DIFFICULTY_PRESETS` y deben mantenerse fáciles de ajustar.
 
@@ -404,7 +403,7 @@ Ejemplo:
 Objetivo: 20 frutas correctas
 ```
 
-La cantidad objetivo es configurable antes de comenzar la partida y se mantiene al reintentar. Existen accesos rápidos para 10, 20, 30 y 50 que actualizan el mismo campo numérico utilizado por el juego; la entrada manual de otros valores continúa disponible.
+La cantidad objetivo es configurable antes de comenzar la partida y se mantiene al reintentar.
 
 No utilizar inicialmente una partida limitada exclusivamente por tiempo.
 
@@ -624,8 +623,6 @@ Errores
 Objetivo
 Tiempo
 ```
-
-El HUD muestra además una barra horizontal discreta junto a Correctas y Objetivo. Representa `correctas / objetivo`, comienza vacía, se limita al 100 % y también disminuye si una penalización resta progreso.
 
 No sobrecargar el HUD con información innecesaria.
 
@@ -1363,7 +1360,7 @@ Verificar:
 
 # 52. PASO 5 — Progresión de velocidad (implementada en v0.2.1)
 
-La velocidad global aumenta de forma continua mediante la raíz cuadrada del progreso de correctas respecto del objetivo, limitada entre 0 y 1. Esta curva hace perceptible la aceleración desde el comienzo sin introducir saltos ni superar el máximo.
+La velocidad global aumenta de forma continua según el progreso de correctas respecto del objetivo.
 
 Parámetros:
 
