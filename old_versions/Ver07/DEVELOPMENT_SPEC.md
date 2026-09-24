@@ -704,9 +704,9 @@ Referencia conceptual:
 - vegetación;
 - colores agradables.
 
-Desde v0.3.1, el fondo interno del gameplay se construye mediante capas independientes y ajustables, tomando como referencia de composición la captura de Catch'n Avoid: cielo veraniego con degradé generado por código, el asset `sun.png` arriba a la derecha, pocas nubes creadas con `cloud_1.png`, `cloud_2.png` y `cloud_3.png`, y el asset `surface_light.png` repetido en la base como apoyo visual de las canastas. Las posiciones, tamaños y velocidades de estos elementos se mantienen centralizados para facilitar retoques manuales sin afectar la lógica.
+Desde v0.3, el fondo interno del gameplay se construye mediante capas independientes y ajustables: un cielo veraniego limpio detrás de la zona de caída, una base inferior de tierra marrón y una franja de pasto superpuesta donde se integran visualmente las canastas. Sus alturas, colores y detalles se mantienen centralizados para permitir retoques manuales sin afectar la lógica del juego.
 
-Las cuatro columnas continúan existiendo únicamente en la mecánica: no deben mostrarse líneas, grilla ni divisiones artificiales entre carriles. No se agregan árboles, flores, arbustos, cercas ni decoración cargada dentro del playfield. Ese tipo de ambientación se reserva para una futura iteración del bezel y los laterales externos.
+Las cuatro columnas continúan existiendo y siendo legibles, pero sus guías visuales deben ser tenues e integrarse al escenario. No se agregan árboles, ramas grandes ni decoración cargada dentro del playfield, para no tapar frutas o canastas. Ese tipo de ambientación se reserva para una futura iteración del bezel y los laterales externos.
 
 La estética puede inspirarse en el estilo del Stage 1 del juego Catch'n Avoid, sin copiar necesariamente su implementación.
 

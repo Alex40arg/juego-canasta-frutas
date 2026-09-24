@@ -1,4 +1,4 @@
-<!-- Version: v0.3.1 -->
+<!-- Version: v0.2.2 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,29 +25,8 @@
       --navy: #071526;
       --panel: #102d43;
       --panel-edge: #2a6980;
-      /* Fondo del gameplay: ajustes centralizados de cielo y assets. */
-      --sky-top: #4aa9dc;
-      --sky-middle: #6bc2e8;
-      --sky-bottom: #b5e6f4;
-      --sun-top: 5%;
-      --sun-right: 4%;
-      --sun-size: 13%;
-      --surface-height: 20px;
-      /* --surface-shade-height: 56px;
-      --surface-shade-color: rgba(40, 110, 130, 0.12); */
-      --cloud-opacity: 0.78;
-      --cloud-one-top: 7%;
-      --cloud-one-width: 27%;
-      --cloud-one-duration: 44s;
-      --cloud-one-delay: -8s;
-      --cloud-two-top: 12%;
-      --cloud-two-width: 24%;
-      --cloud-two-duration: 60s;
-      --cloud-two-delay: -36s;
-      --cloud-three-top: 20%;
-      --cloud-three-width: 30%;
-      --cloud-three-duration: 76s;
-      --cloud-three-delay: -57s;
+      --sky-top: #246b8d;
+      --sky-bottom: #0f344e;
       --good: #67ff87;
       --bad: #ff596d;
     }
@@ -331,97 +310,20 @@
       border: 6px solid #173c51;
       border-radius: 10px;
       isolation: isolate;
-      background: var(--sky-bottom);
-      box-shadow: 0 0 0 3px #06111d, 0 14px 35px rgba(0, 0, 0, 0.45), inset 0 0 20px rgba(6, 13, 24, 0.16);
+      background:
+        linear-gradient(90deg, transparent 24.6%, rgba(173, 230, 245, 0.12) 25%, transparent 25.4%, transparent 49.6%, rgba(173, 230, 245, 0.12) 50%, transparent 50.4%, transparent 74.6%, rgba(173, 230, 245, 0.12) 75%, transparent 75.4%),
+        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 73%, #092538 73%, #071b2a 100%);
+      box-shadow: 0 0 0 3px #06111d, 0 14px 35px rgba(0, 0, 0, 0.45), inset 0 0 42px rgba(6, 13, 24, 0.42);
     }
 
-    .scenery {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .scenery-layer {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      pointer-events: none;
-    }
-
-    .sky-layer {
-      inset: 0;
-      height: 100%;
-      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-middle) 56%, var(--sky-bottom) 100%);
-    }
-
-    .scenery-asset {
-      position: absolute;
-      display: block;
-      height: auto;
-      object-fit: contain;
-      image-rendering: pixelated;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .sun {
-      z-index: 1;
-      top: var(--sun-top);
-      right: var(--sun-right);
-      width: var(--sun-size);
-    }
-
-    .cloud {
-      z-index: 2;
-      left: -34%;
-      opacity: var(--cloud-opacity);
-      animation: cloud-drift var(--cloud-duration) linear var(--cloud-delay) infinite;
-      will-change: left;
-    }
-
-    .cloud-one {
-      top: var(--cloud-one-top);
-      width: var(--cloud-one-width);
-      --cloud-duration: var(--cloud-one-duration);
-      --cloud-delay: var(--cloud-one-delay);
-    }
-
-    .cloud-two {
-      top: var(--cloud-two-top);
-      width: var(--cloud-two-width);
-      --cloud-duration: var(--cloud-two-duration);
-      --cloud-delay: var(--cloud-two-delay);
-    }
-
-    .cloud-three {
-      top: var(--cloud-three-top);
-      width: var(--cloud-three-width);
-      --cloud-duration: var(--cloud-three-duration);
-      --cloud-delay: var(--cloud-three-delay);
-    }
-
-    .surface-layer {
-      z-index: 3;
-      bottom: 0;
-      height: var(--surface-height);
-      background: url("assets/surface_light.png") repeat-x left bottom / auto 100%;
-      image-rendering: pixelated;
-    }
-
-    .surface-layer::before {
+    .playfield::before {
       content: "";
       position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 100%;
-      height: var(--surface-shade-height);
-      background: linear-gradient(180deg, transparent 0%, rgba(32, 104, 111, 0.32) 24%, var(--surface-shade-color) 100%);
-    }
-
-    @keyframes cloud-drift {
-      from { left: -34%; }
-      to { left: 108%; }
+      inset: 0;
+      z-index: -1;
+      opacity: 0.18;
+      background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 255, 255, 0.1) 4px);
+      pointer-events: none;
     }
 
     .fruit,
@@ -429,6 +331,7 @@
       position: absolute;
       display: block;
       object-fit: contain;
+      mix-blend-mode: screen;
       image-rendering: pixelated;
       user-select: none;
       pointer-events: none;
@@ -622,14 +525,6 @@
         </aside>
 
         <div id="playfield" class="playfield">
-        <div class="scenery" aria-hidden="true">
-          <div class="scenery-layer sky-layer"></div>
-          <img class="scenery-asset sun" src="assets/sun.png" alt="">
-          <img class="scenery-asset cloud cloud-one" src="assets/cloud_1.png" alt="">
-          <img class="scenery-asset cloud cloud-two" src="assets/cloud_2.png" alt="">
-          <img class="scenery-asset cloud cloud-three" src="assets/cloud_3.png" alt="">
-          <div class="scenery-layer surface-layer"></div>
-        </div>
         <div id="fruits" aria-label="Frutas activas"></div>
         <div id="baskets" aria-label="Canastas"></div>
 
@@ -676,7 +571,7 @@
       fruitSize: 76,
       basketWidth: 126,
       basketHeight: 92,
-      basketBottom: 4,
+      basketBottom: 26,
       basketMoveDuration: 80,
       feedbackDuration: 380,
       maxRandomStreak: 3

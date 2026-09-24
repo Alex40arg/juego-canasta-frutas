@@ -138,25 +138,3 @@
 
 ### Estado
 - Sintaxis, versión, capas requeridas, diff y conservación exacta del JavaScript verificados automáticamente. En navegador Chromium integrado se comprobaron 1366×768 y 1920×1080 sin scroll, cielo/tierra/pasto diferenciados, columnas sutiles, frutas y canastas legibles, cuatro canastas sin copias huérfanas, entradas rápidas, pausa con tiempo y frutas congelados y ausencia de errores de consola. Pendiente de prueba manual en Chrome/Edge: apreciación final de contraste, colores y ambientación.
-
-## Ver 08 — v0.3.1 — 2026-09-24
-
-### Cambios
-- Descartado el intento visual de v0.3 y restaurada como base funcional la presentación de v0.2.2 antes de rehacer únicamente el fondo.
-- Construido un nuevo cielo en degradé inspirado en `example.png`, con `sun.png` arriba a la derecha y las tres nubes PNG existentes en movimiento suave hacia la derecha a velocidades distintas.
-- Incorporado `surface_light.png` como franja inferior repetida para apoyar visualmente las canastas, sin mantener la franja de tierra anterior.
-- Eliminadas por completo las líneas y divisiones visibles de las cuatro columnas; su lógica interna permanece intacta.
-- Centralizados posición y tamaño del sol, altura del pasto y posición, tamaño, duración y desfase de cada nube.
-- Actualizado de forma localizada `DEVELOPMENT_SPEC.md` y preservada la v0.3 descartada en `old_versions/Ver07/` sin duplicar assets.
-
-### Motivo
-- Rehacer el fondo del gameplay con los assets reales aportados y una composición más fiel a la referencia de Catch'n Avoid.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver07/ (copia histórica textual de v0.3)
-
-### Estado
-- Implementación terminada; pendientes comprobaciones automáticas, responsive y visuales.
