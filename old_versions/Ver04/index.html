@@ -1,4 +1,4 @@
-<!-- Version: v0.2.1 -->
+<!-- Version: v0.2 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -431,13 +431,9 @@
         </label>
         <fieldset id="customSettings" class="custom-settings is-disabled">
           <legend>Parámetros Custom</legend>
-          <label class="setting-row" for="customStartFallSpeedInput">
-            <span>Velocidad inicial</span>
-            <input id="customStartFallSpeedInput" type="number" min="120" max="320" step="5" value="185" disabled>
-          </label>
-          <label class="setting-row" for="customMaxFallSpeedInput">
-            <span>Velocidad máxima</span>
-            <input id="customMaxFallSpeedInput" type="number" min="120" max="320" step="5" value="240" disabled>
+          <label class="setting-row" for="customFallSpeedInput">
+            <span>Velocidad de caída</span>
+            <input id="customFallSpeedInput" type="number" min="120" max="320" step="10" value="190" disabled>
           </label>
           <label class="setting-row" for="customMaxFruitsInput">
             <span>Máximo de frutas</span>
@@ -539,30 +535,26 @@
     const DIFFICULTY_PRESETS = Object.freeze({
       easy: Object.freeze({
         label: "Fácil",
-        startFallSpeed: 140,
-        maxFallSpeed: 175,
+        fruitFallSpeed: 145,
         maxActiveFruits: 1,
         spawnInterval: 1500
       }),
       normal: Object.freeze({
         label: "Normal",
-        startFallSpeed: 185,
-        maxFallSpeed: 240,
+        fruitFallSpeed: 190,
         maxActiveFruits: 2,
         spawnInterval: 1150
       }),
       hard: Object.freeze({
         label: "Difícil",
-        startFallSpeed: 230,
-        maxFallSpeed: 310,
+        fruitFallSpeed: 235,
         maxActiveFruits: 3,
         spawnInterval: 850
       })
     });
 
     const CUSTOM_LIMITS = Object.freeze({
-      startFallSpeed: Object.freeze({ min: 120, max: 320 }),
-      maxFallSpeed: Object.freeze({ min: 120, max: 320 }),
+      fruitFallSpeed: Object.freeze({ min: 120, max: 320 }),
       maxActiveFruits: Object.freeze({ min: 1, max: 4 }),
       spawnInterval: Object.freeze({ min: 700, max: 3000 }),
       targetCorrectFruits: Object.freeze({ min: 1, max: 100 })
@@ -570,8 +562,7 @@
 
     const DEFAULT_CUSTOM_SETTINGS = Object.freeze({
       label: "Custom",
-      startFallSpeed: 185,
-      maxFallSpeed: 240,
+      fruitFallSpeed: 190,
       maxActiveFruits: 2,
       spawnInterval: 1150,
       targetCorrectFruits: 20,
@@ -608,8 +599,7 @@
     const soundEnabled = document.querySelector("#soundEnabled");
     const basketAnimationEnabled = document.querySelector("#basketAnimationEnabled");
     const customSettings = document.querySelector("#customSettings");
-    const customStartFallSpeedInput = document.querySelector("#customStartFallSpeedInput");
-    const customMaxFallSpeedInput = document.querySelector("#customMaxFallSpeedInput");
+    const customFallSpeedInput = document.querySelector("#customFallSpeedInput");
     const customMaxFruitsInput = document.querySelector("#customMaxFruitsInput");
     const customSpawnIntervalInput = document.querySelector("#customSpawnIntervalInput");
 
@@ -655,7 +645,7 @@
     function updateCustomControls() {
       const isCustom = difficultySelect.value === "custom";
       customSettings.classList.toggle("is-disabled", !isCustom);
-      [customStartFallSpeedInput, customMaxFallSpeedInput, customMaxFruitsInput, customSpawnIntervalInput].forEach((input) => {
+      [customFallSpeedInput, customMaxFruitsInput, customSpawnIntervalInput].forEach((input) => {
         input.disabled = !isCustom;
       });
     }
@@ -676,25 +666,13 @@
         return { ...DIFFICULTY_PRESETS[difficulty], ...sharedSettings, difficulty };
       }
 
-      const startFallSpeed = normalizeNumberInput(
-        customStartFallSpeedInput,
-        CUSTOM_LIMITS.startFallSpeed,
-        DEFAULT_CUSTOM_SETTINGS.startFallSpeed
-      );
-      const maxFallSpeed = Math.max(
-        startFallSpeed,
-        normalizeNumberInput(
-          customMaxFallSpeedInput,
-          CUSTOM_LIMITS.maxFallSpeed,
-          DEFAULT_CUSTOM_SETTINGS.maxFallSpeed
-        )
-      );
-      customMaxFallSpeedInput.value = maxFallSpeed;
-
       return {
         label: DEFAULT_CUSTOM_SETTINGS.label,
-        startFallSpeed,
-        maxFallSpeed,
+        fruitFallSpeed: normalizeNumberInput(
+          customFallSpeedInput,
+          CUSTOM_LIMITS.fruitFallSpeed,
+          DEFAULT_CUSTOM_SETTINGS.fruitFallSpeed
+        ),
         maxActiveFruits: normalizeNumberInput(
           customMaxFruitsInput,
           CUSTOM_LIMITS.maxActiveFruits,
@@ -976,13 +954,6 @@
       timeValue.textContent = formatTime(elapsedMs);
     }
 
-    function getCurrentFallSpeed() {
-      const progress = Math.min(1, Math.max(0, correct / currentGameConfig.targetCorrectFruits));
-      const speedRange = currentGameConfig.maxFallSpeed - currentGameConfig.startFallSpeed;
-      const currentSpeed = currentGameConfig.startFallSpeed + speedRange * progress;
-      return Math.min(currentGameConfig.maxFallSpeed, Math.max(currentGameConfig.startFallSpeed, currentSpeed));
-    }
-
     function gameLoop(timestamp) {
       const deltaMs = lastFrameTime ? Math.min(timestamp - lastFrameTime, 50) : 0;
       lastFrameTime = timestamp;
@@ -990,10 +961,9 @@
       if (gameState === "playing") {
         elapsedMs += deltaMs;
         spawnElapsedMs += deltaMs;
-        const currentFallSpeed = getCurrentFallSpeed();
 
         for (const fruit of [...activeFruits]) {
-          fruit.y += currentFallSpeed * (deltaMs / 1000);
+          fruit.y += currentGameConfig.fruitFallSpeed * (deltaMs / 1000);
           drawFruit(fruit);
 
           if (fruit.y + GAME_CONFIG.fruitSize >= getBasketCaptureY()) {

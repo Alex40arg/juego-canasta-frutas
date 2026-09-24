@@ -74,24 +74,3 @@
 
 ### Estado
 - Sintaxis JavaScript, IDs, assets, versión y diff verificados. Probados en navegador Chromium: Fácil con 1 fruta, Normal con 2, Difícil con 3 y Custom con 4; spawn escalonado, frutas repetidas y en la misma columna, pausa/reanudación sin ráfaga, penalización ON/OFF, límite inferior 0, fin, reintento, menú, animación ON/OFF y limpieza de frutas/copias. Layout sin scroll probado en 1366×768 y 1920×1080, sin errores de consola. Pendiente de prueba manual: balance subjetivo de presets, sensación de control, lectura visual y audición de los sonidos.
-
-## Ver 05 — v0.2.1 — 2026-09-23
-
-### Cambios
-- Incorporada una velocidad global progresiva calculada continuamente según las correctas respecto del objetivo.
-- Reemplazada la velocidad fija de cada preset por rangos centralizados `startFallSpeed` / `maxFallSpeed`, sin cambiar sus cantidades activas ni intervalos de spawn.
-- Ampliado Custom con velocidad inicial y máxima, límites conservadores y normalización del máximo cuando queda por debajo del inicial.
-- Conservado un único valor global por frame para mover todas las frutas; una penalización puede reducir proporcionalmente esa velocidad.
-- Actualizado de forma localizada `DEVELOPMENT_SPEC.md` y preservada v0.2 en `old_versions/Ver04/` sin duplicar assets.
-
-### Motivo
-- Agregar progresión gradual de dificultad durante la partida sin modificar la presentación ni las mecánicas ya validadas.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver04/ (copia histórica textual de v0.2)
-
-### Estado
-- Sintaxis, IDs, versión y diff verificados. Un harness comprobó inicio, mitad, máximo, límites y descenso de velocidad para Fácil, Normal, Difícil y Custom, incluida la normalización de valores invertidos. En navegador Chromium se verificaron los controles Custom, dos frutas con desplazamiento global idéntico, pausa/reanudación, limpieza al volver al menú y ausencia de errores de consola. Pendiente de prueba manual: balance y sensación subjetiva de la aceleración.

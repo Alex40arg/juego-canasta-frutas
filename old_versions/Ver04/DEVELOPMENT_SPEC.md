@@ -319,18 +319,16 @@ No deben generarse grupos completos en el mismo instante ni varias frutas en un 
 
 Todas las frutas activas deben utilizar la misma velocidad global de caída.
 
-No utilizar frutas con velocidades individuales diferentes.
+No utilizar inicialmente frutas con velocidades individuales claramente diferentes.
 
-Desde v0.2.1, cada dificultad define una velocidad inicial y una velocidad máxima. La velocidad global aumenta de forma continua según el progreso de correctas respecto del objetivo:
+La dificultad puede incluir en el futuro una progresión gradual de velocidad durante una partida.
 
-```text
-progreso = correctas / objetivo
-velocidad actual = velocidad inicial + (velocidad máxima - velocidad inicial) × progreso
-```
+En ese caso:
 
-El progreso y la velocidad deben mantenerse dentro de sus límites. Al inicio se usa la velocidad inicial; al acercarse al objetivo, la velocidad se acerca suavemente a la máxima sin superarla.
+- la velocidad global puede aumentar;
+- todas las frutas deben seguir utilizando la velocidad vigente del juego en ese momento.
 
-Todas las frutas activas comparten la misma velocidad global calculada en cada frame. Si una penalización reduce las correctas, la velocidad también puede disminuir hasta el valor correspondiente al nuevo progreso.
+En v0.2 no existe progresión automática: la velocidad seleccionada se mantiene durante toda la partida.
 
 ---
 
@@ -365,12 +363,12 @@ El diseño previsto incluye:
 Las tres variables principales de dificultad son:
 
 ```text
-rango de velocidad global
+velocidad de caída
 cantidad de frutas simultáneas
 intervalo entre spawns
 ```
 
-Los presets funcionales son Fácil, Normal, Difícil y Custom. Cada uno define `startFallSpeed` y `maxFallSpeed`. Fácil permite una fruta activa y usa el rango más bajo con intervalo amplio; Normal permite hasta dos; Difícil permite hasta tres con el rango más alto e intervalo menor.
+Los presets funcionales son Fácil, Normal, Difícil y Custom. Fácil permite una fruta activa y usa velocidad baja e intervalo amplio; Normal permite hasta dos; Difícil permite hasta tres con mayor velocidad e intervalo menor.
 
 Los valores están centralizados en `DIFFICULTY_PRESETS` y deben mantenerse fáciles de ajustar.
 
@@ -382,14 +380,13 @@ Deben considerarse valores de balance sujetos a pruebas.
 
 El modo Custom permite modificar manualmente:
 
-- velocidad inicial;
-- velocidad máxima;
+- velocidad de caída;
 - cantidad máxima de frutas simultáneas;
 - intervalo de spawn;
 - cantidad objetivo de frutas;
 - penalización por error.
 
-Los controles utilizan límites conservadores centralizados para impedir valores que rompan el flujo o produzcan superposiciones extremas. La velocidad máxima se normaliza para que nunca quede por debajo de la inicial. No existe persistencia de estas opciones.
+Los controles utilizan límites conservadores centralizados para impedir valores que rompan el flujo o produzcan superposiciones extremas. No existe persistencia de estas opciones.
 
 ---
 
@@ -595,7 +592,7 @@ Parámetros funcionales desde v0.2:
 
 La opción funcional `Animación de canastas` permite activar o desactivar el movimiento visual circular. Su estado predeterminado es activado y puede cambiarse antes de iniciar una partida.
 
-La configuración Custom incluye velocidad inicial, velocidad máxima, máximo de frutas activas e intervalo de spawn. La música continúa fuera del alcance actual.
+La configuración Custom incluye velocidad global, máximo de frutas activas e intervalo de spawn. La música continúa fuera del alcance actual.
 
 Evitar crear opciones que todavía no tengan función real.
 
@@ -899,8 +896,7 @@ Y para lógica:
 
 ```javascript
 const GAME_CONFIG = {
-    startFallSpeed: ...,
-    maxFallSpeed: ...,
+    fruitFallSpeed: ...,
     basketMoveDuration: ...,
     targetCorrectFruits: ...
 };
@@ -1358,20 +1354,22 @@ Verificar:
 
 ---
 
-# 52. PASO 5 — Progresión de velocidad (implementada en v0.2.1)
+# 52. PASO 5 — Progresión de velocidad
 
-La velocidad global aumenta de forma continua según el progreso de correctas respecto del objetivo.
+Evaluar incremento gradual durante la partida.
 
-Parámetros:
+Posibles parámetros:
 
 ```text
-startFallSpeed
-maxFallSpeed
+velocidad inicial
+velocidad máxima
+incremento
+frecuencia del incremento
 ```
 
 Todas las frutas deben utilizar la misma velocidad global vigente.
 
-La velocidad puede disminuir si una penalización reduce el progreso. No introducir velocidades individuales salvo decisión posterior.
+No introducir velocidades individuales salvo decisión posterior.
 
 ---
 
@@ -1384,7 +1382,7 @@ Se implementaron controles básicos de:
 - penalización;
 - sonido;
 - Custom;
-- velocidad inicial, velocidad máxima, cantidad activa e intervalo para Custom.
+- velocidad, cantidad activa e intervalo para Custom.
 
 ---
 
