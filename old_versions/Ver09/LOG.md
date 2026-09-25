@@ -181,23 +181,3 @@
 
 ### Estado
 - Sintaxis JavaScript y filtros calculados verificados en Chrome sin interfaz. Comprobados cuatro colores normales, verde y rojo puro, regreso inmediato, feedback repetido, wrap durante feedback, feedback durante wrap, animación desactivada, ausencia de errores JavaScript y layouts 1366×768 / 1920×1080 sin desborde. Pendiente de evaluación visual final de sutileza, contraste y continuidad perceptiva en Chrome/Edge externo.
-
-## Ver 10 — v0.3.3 — 2026-09-24
-
-### Cambios
-- Separados desplazamiento, giro y estela en cada fruta, con dirección de giro aleatoria y ángulo ligado a la distancia caída.
-- Agregada una estela vertical suave y del color de cada fruta, detrás del sprite, sin partículas ni nodos por frame.
-- Centralizados grados por píxel, longitud, ancho, opacidad, blur y colores de las estelas; las nubes se congelan durante la pausa.
-- Preservada v0.3.2 en `old_versions/Ver09/` con archivos de texto verificados por SHA-256, sin duplicar assets.
-
-### Motivo
-- Dar vida visual a las frutas sin modificar su caída lógica, capturas ni otras mecánicas.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver09/
-
-### Estado
-- Sintaxis JavaScript y `git diff --check` verificados. Un harness con DOM simulado comprobó spawn, giros en ambos sentidos, pausa/reanudación, límites de 1/2/3/4 frutas para Fácil/Normal/Difícil/Custom, umbral de captura, aciertos, errores, fin, reintento, menú y ausencia de estelas huérfanas. Pendiente: evaluación visual y funcional en Chrome/Edge externo; la política de URL del navegador integrado bloqueó la carga local.

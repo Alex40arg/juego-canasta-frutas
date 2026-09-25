@@ -1,4 +1,4 @@
-<!-- Version: v0.3.3 -->
+<!-- Version: v0.3.2 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -59,16 +59,6 @@
       --basket-feedback-opacity: 0.82;
       --basket-feedback-good: 44, 235, 89;
       --basket-feedback-bad: 255, 0, 0;
-      /* Frutas en caída: giro por píxel y estela (largo relativo al tamaño de fruta). */
-      --fruit-spin-degrees-per-pixel: 0.5;
-      --fruit-trail-length: 200%;
-      --fruit-trail-width: 70%;
-      --fruit-trail-opacity: 0.28;
-      --fruit-trail-blur: 6px;
-      --fruit-trail-apple: 244, 111, 132;
-      --fruit-trail-pear: 190, 221, 103;
-      --fruit-trail-banana: 255, 219, 105;
-      --fruit-trail-orange: 255, 162, 81;
     }
 
     * { box-sizing: border-box; }
@@ -399,8 +389,6 @@
       will-change: left;
     }
 
-    .playfield.is-paused .cloud { animation-play-state: paused; }
-
     .cloud-one {
       top: var(--cloud-one-top);
       width: var(--cloud-one-width);
@@ -445,55 +433,27 @@
       to { left: 108%; }
     }
 
-    .fruit-object,
     .fruit,
     .basket {
       position: absolute;
       display: block;
+      object-fit: contain;
+      image-rendering: pixelated;
       user-select: none;
       pointer-events: none;
     }
 
-    .fruit-object {
+    .fruit {
       z-index: 3;
       width: var(--fruit-size);
       height: var(--fruit-size);
       will-change: transform;
     }
 
-    .fruit {
-      inset: 0;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      image-rendering: pixelated;
-      will-change: transform;
-    }
-
-    .fruit-trail {
-      position: absolute;
-      left: 50%;
-      bottom: 82%;
-      width: var(--fruit-trail-width);
-      height: var(--fruit-trail-length);
-      transform: translateX(-50%);
-      background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(var(--fruit-trail-color), var(--fruit-trail-opacity)) 0%, rgba(var(--fruit-trail-color), 0) 100%);
-      filter: blur(var(--fruit-trail-blur));
-      pointer-events: none;
-    }
-
-    .fruit-object[data-type="manzana"] { --fruit-trail-color: var(--fruit-trail-apple); }
-    .fruit-object[data-type="pera"] { --fruit-trail-color: var(--fruit-trail-pear); }
-    .fruit-object[data-type="banana"] { --fruit-trail-color: var(--fruit-trail-banana); }
-    .fruit-object[data-type="naranja"] { --fruit-trail-color: var(--fruit-trail-orange); }
-
     .basket {
       z-index: 2;
       width: var(--basket-width);
       height: var(--basket-height);
-      object-fit: contain;
-      image-rendering: pixelated;
       bottom: var(--basket-bottom);
       --halo-blur: var(--basket-halo-blur);
       --halo-opacity: var(--basket-halo-opacity);
@@ -782,10 +742,6 @@
       { id: "naranja", name: "naranja", fruit: "assets/naranja.png", basket: "assets/canasta_naranja.png" }
     ]);
 
-    const fruitSpinDegreesPerPixel = Number.parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue("--fruit-spin-degrees-per-pixel")
-    );
-
     const screens = {
       menu: document.querySelector("#menuScreen"),
       settings: document.querySelector("#settingsScreen"),
@@ -1072,29 +1028,18 @@
       lastFruitIndex = fruitIndex;
       lastColumnIndex = columnIndex;
 
-      const fruitObject = document.createElement("div");
-      fruitObject.className = "fruit-object";
-      fruitObject.dataset.type = FRUIT_TYPES[fruitIndex].id;
-      const trailElement = document.createElement("span");
-      trailElement.className = "fruit-trail";
-      trailElement.setAttribute("aria-hidden", "true");
       const fruitElement = document.createElement("img");
       fruitElement.className = "fruit";
       fruitElement.src = FRUIT_TYPES[fruitIndex].fruit;
       fruitElement.alt = FRUIT_TYPES[fruitIndex].name;
-      fruitObject.append(trailElement, fruitElement);
-      fruitsElement.append(fruitObject);
+      fruitsElement.append(fruitElement);
 
       const fruit = {
         id: nextFruitId,
         typeId: FRUIT_TYPES[fruitIndex].id,
         columnIndex,
         y: -GAME_CONFIG.fruitSize,
-        spawnY: -GAME_CONFIG.fruitSize,
-        spinDirection: Math.random() < 0.5 ? 1 : -1,
-        initialAngle: Math.random() * 360,
-        element: fruitObject,
-        image: fruitElement,
+        element: fruitElement,
         state: "falling"
       };
       nextFruitId += 1;
@@ -1106,8 +1051,6 @@
       if (fruit.state !== "falling") return;
       const x = getColumnCenter(fruit.columnIndex) - GAME_CONFIG.fruitSize / 2;
       fruit.element.style.transform = `translate3d(${x}px, ${fruit.y}px, 0)`;
-      const angle = fruit.initialAngle + (fruit.y - fruit.spawnY) * fruitSpinDegreesPerPixel * fruit.spinDirection;
-      fruit.image.style.transform = `rotate(${angle}deg)`;
     }
 
     function clearActiveFruits() {
@@ -1264,7 +1207,6 @@
       lastColumnIndex = -1;
       columnStreak = 0;
       gameState = "playing";
-      playfield.classList.remove("is-paused");
       pauseOverlay.classList.remove("visible");
       endOverlay.classList.remove("visible");
       showScreen("game");
@@ -1278,19 +1220,16 @@
     function togglePause() {
       if (gameState === "playing") {
         gameState = "paused";
-        playfield.classList.add("is-paused");
         pauseOverlay.classList.add("visible");
       } else if (gameState === "paused") {
         gameState = "playing";
         lastFrameTime = performance.now();
-        playfield.classList.remove("is-paused");
         pauseOverlay.classList.remove("visible");
       }
     }
 
     function finishGame() {
       gameState = "finished";
-      playfield.classList.remove("is-paused");
       window.cancelAnimationFrame(animationFrameId);
       clearBasketMotion();
       positionBaskets();
@@ -1303,7 +1242,6 @@
 
     function returnToMenu() {
       gameState = "menu";
-      playfield.classList.remove("is-paused");
       window.cancelAnimationFrame(animationFrameId);
       animationFrameId = 0;
       lastFrameTime = 0;

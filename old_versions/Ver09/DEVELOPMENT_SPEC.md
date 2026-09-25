@@ -309,8 +309,6 @@ Cada fruta:
 
 Desde v0.2 puede existir una colección de frutas activas. Cada fruta conserva de forma independiente su tipo, columna, posición vertical, elemento visual y estado.
 
-Desde v0.3.3, cada fruta muestra un giro suave con dirección horaria o antihoraria elegida al aparecer. El ángulo se calcula a partir de la distancia vertical recorrida, por lo que se congela durante la pausa y retoma al continuar. Una única estela vertical sutil, del color correspondiente a la fruta, queda detrás del sprite sin rotar ni generar partículas. Longitud, ancho, opacidad, blur, colores y grados de giro por píxel se ajustan juntos mediante variables CSS en `index.html`; estos efectos no cambian la posición lógica ni la detección de captura.
-
 La primera fruta aparece al comenzar la partida. Las siguientes aparecen de forma escalonada según `spawnInterval`, siempre que la cantidad activa sea menor que `maxActiveFruits`.
 
 No deben generarse grupos completos en el mismo instante ni varias frutas en un mismo frame por acumulación de tiempo.
