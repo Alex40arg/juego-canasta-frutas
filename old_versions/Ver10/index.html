@@ -1,4 +1,4 @@
-<!-- Version: v0.3.4 -->
+<!-- Version: v0.3.3 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -237,27 +237,12 @@
     .custom-settings.is-disabled { opacity: 0.52; }
 
     .game-screen {
-      position: relative;
       align-items: center;
       justify-content: center;
       padding: 16px;
-      isolation: isolate;
-    }
-
-    .game-marquee {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      image-rendering: pixelated;
-      pointer-events: none;
     }
 
     .game-shell {
-      position: relative;
-      z-index: 1;
       display: flex;
       width: calc(var(--hud-width) + var(--layout-gap) + var(--game-width));
       height: var(--game-height);
@@ -634,19 +619,19 @@
           <legend>Parámetros Custom</legend>
           <label class="setting-row" for="customStartFallSpeedInput">
             <span>Velocidad inicial</span>
-            <input id="customStartFallSpeedInput" type="number" min="120" max="400" step="5" value="225" disabled>
+            <input id="customStartFallSpeedInput" type="number" min="120" max="400" step="5" value="185" disabled>
           </label>
           <label class="setting-row" for="customMaxFallSpeedInput">
             <span>Velocidad máxima</span>
-            <input id="customMaxFallSpeedInput" type="number" min="120" max="400" step="5" value="350" disabled>
+            <input id="customMaxFallSpeedInput" type="number" min="120" max="400" step="5" value="240" disabled>
           </label>
           <label class="setting-row" for="customMaxFruitsInput">
             <span>Máximo de frutas</span>
-            <input id="customMaxFruitsInput" type="number" min="1" max="4" step="1" value="3" disabled>
+            <input id="customMaxFruitsInput" type="number" min="1" max="4" step="1" value="2" disabled>
           </label>
           <label class="setting-row" for="customSpawnIntervalInput">
             <span>Intervalo de spawn (ms)</span>
-            <input id="customSpawnIntervalInput" type="number" min="700" max="3000" step="50" value="850" disabled>
+            <input id="customSpawnIntervalInput" type="number" min="700" max="3000" step="50" value="1150" disabled>
           </label>
         </fieldset>
         <button id="settingsBackButton" class="secondary-button" type="button">Volver</button>
@@ -654,7 +639,6 @@
     </section>
 
     <section id="gameScreen" class="screen game-screen" aria-label="Partida de Fruit Basket">
-      <img class="game-marquee" src="assets/marquee.png" alt="" aria-hidden="true">
       <div id="gameShell" class="game-shell">
         <aside class="hud" aria-label="Marcador">
         <h2 class="hud-title">FRUIT<br>BASKET</h2>
@@ -740,10 +724,6 @@
       layoutViewportMargin: 32,
       layoutMaxScale: 1.4,
       layoutMinScale: 0.65,
-      marqueeWidth: 1672,
-      marqueeHeight: 941,
-      // El hueco mide ~1012 px; reservar 12 px evita rozar los laterales.
-      marqueeOpeningWidth: 1000,
       fruitSize: 76,
       basketWidth: 126,
       basketHeight: 92,
@@ -787,12 +767,12 @@
 
     const DEFAULT_CUSTOM_SETTINGS = Object.freeze({
       label: "Custom",
-      startFallSpeed: 225,
-      maxFallSpeed: 350,
-      maxActiveFruits: 3,
-      spawnInterval: 850,
-      targetCorrectFruits: 50,
-      penalizeErrors: true
+      startFallSpeed: 185,
+      maxFallSpeed: 240,
+      maxActiveFruits: 2,
+      spawnInterval: 1150,
+      targetCorrectFruits: 20,
+      penalizeErrors: false
     });
 
     const FRUIT_TYPES = Object.freeze([
@@ -937,18 +917,12 @@
     function updateLayoutScale() {
       const availableWidth = window.innerWidth - GAME_CONFIG.layoutViewportMargin;
       const availableHeight = window.innerHeight - GAME_CONFIG.layoutViewportMargin;
-      const marqueeScale = Math.min(
-        window.innerWidth / GAME_CONFIG.marqueeWidth,
-        window.innerHeight / GAME_CONFIG.marqueeHeight
-      );
-      const openingScale = marqueeScale * GAME_CONFIG.marqueeOpeningWidth / GAME_CONFIG.layoutBaseWidth;
       const scale = Math.min(
         GAME_CONFIG.layoutMaxScale,
         availableWidth / GAME_CONFIG.layoutBaseWidth,
-        availableHeight / GAME_CONFIG.layoutBaseHeight,
-        openingScale
+        availableHeight / GAME_CONFIG.layoutBaseHeight
       );
-      const safeScale = Math.min(openingScale, Math.max(GAME_CONFIG.layoutMinScale, scale));
+      const safeScale = Math.max(GAME_CONFIG.layoutMinScale, scale);
       gameShell.style.setProperty("--ui-scale", safeScale.toFixed(4));
     }
 

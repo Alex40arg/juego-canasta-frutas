@@ -201,19 +201,3 @@
 
 ### Estado
 - Sintaxis JavaScript y `git diff --check` verificados. Un harness con DOM simulado comprobó spawn, giros en ambos sentidos, pausa/reanudación, límites de 1/2/3/4 frutas para Fácil/Normal/Difícil/Custom, umbral de captura, aciertos, errores, fin, reintento, menú y ausencia de estelas huérfanas. Pendiente: evaluación visual y funcional en Chrome/Edge externo; la política de URL del navegador integrado bloqueó la carga local.
-
-## Ver 11 — v0.3.4 — 2026-09-25
-
-### Cambios
-- Integrado `assets/marquee.png` como capa decorativa centrada detrás de `game-shell`, sin interceptar entradas ni modificar el PNG.
-- Limitado de forma centralizada el escalado global al ancho útil del centro transparente, manteniendo HUD de 230 px, gap de 24 px y gameplay de 540 px.
-- Registrada la integración visual vigente en `DEVELOPMENT_SPEC.md` y preservada v0.3.3 en `old_versions/Ver10/` sin duplicar assets.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver10/ (copia histórica textual de v0.3.3)
-
-### Estado
-- En Chrome automatizado se verificaron 1920×1080 y 1366×768: bezel centrado y proporcional, HUD y gameplay contenidos en la transparencia, sin recortes ni scroll. Se probaron menú, configuración, inicio, rotación, estelas, pausa/reanudación, captura, final, reintento, regreso al menú y resize, sin errores JavaScript. Pendiente: evaluación visual manual en Chrome/Edge de escritorio.
