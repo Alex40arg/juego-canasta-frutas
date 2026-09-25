@@ -160,24 +160,3 @@
 
 ### Estado
 - Implementación terminada; pendientes comprobaciones automáticas, responsive y visuales.
-
-## Ver 09 — v0.3.2 — 2026-09-24
-
-### Cambios
-- Agregado un halo permanente y suave a cada canasta con color propio; el de manzana es rosado/coral.
-- Centralizados color, opacidad y desenfoque del halo normal y del feedback.
-- El feedback sustituye inmediatamente el halo por verde o rojo puro y devuelve el color habitual sin estados intermedios sin halo.
-- Conservado el halo en la copia visual del wrap y evitado que un feedback anterior corte uno repetido rápidamente.
-- Preservada v0.3.1 en `old_versions/Ver08/` con los tres archivos de texto vigentes, sin duplicar assets.
-
-### Motivo
-- Integrar visualmente las canastas y mantener un feedback claro y continuo sobre la silueta transparente real.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver08/
-
-### Estado
-- Sintaxis JavaScript y filtros calculados verificados en Chrome sin interfaz. Comprobados cuatro colores normales, verde y rojo puro, regreso inmediato, feedback repetido, wrap durante feedback, feedback durante wrap, animación desactivada, ausencia de errores JavaScript y layouts 1366×768 / 1920×1080 sin desborde. Pendiente de evaluación visual final de sutileza, contraste y continuidad perceptiva en Chrome/Edge externo.

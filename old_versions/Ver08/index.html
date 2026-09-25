@@ -1,4 +1,4 @@
-<!-- Version: v0.3.2 -->
+<!-- Version: v0.3.1 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -48,17 +48,8 @@
       --cloud-three-width: 30%;
       --cloud-three-duration: 76s;
       --cloud-three-delay: -57s;
-      /* Halo de canastas: colores RGB para ajustar la opacidad por separado. */
-      --basket-halo-blur: 5px;
-      --basket-halo-opacity: 2.5;
-      --basket-halo-apple: 255, 128, 145;
-      --basket-halo-pear: 178, 224, 104;
-      --basket-halo-banana: 255, 218, 103;
-      --basket-halo-orange: 255, 172, 94;
-      --basket-feedback-blur: 11px;
-      --basket-feedback-opacity: 0.82;
-      --basket-feedback-good: 44, 235, 89;
-      --basket-feedback-bad: 255, 0, 0;
+      --good: #67ff87;
+      --bad: #ff596d;
     }
 
     * { box-sizing: border-box; }
@@ -455,26 +446,24 @@
       width: var(--basket-width);
       height: var(--basket-height);
       bottom: var(--basket-bottom);
-      --halo-blur: var(--basket-halo-blur);
-      --halo-opacity: var(--basket-halo-opacity);
-      filter: drop-shadow(0 0 var(--halo-blur) rgba(var(--halo-color), var(--halo-opacity)));
+      transition: filter 80ms linear;
       will-change: left, filter;
     }
 
-    .basket[data-type="manzana"], .basket[data-halo-type="manzana"] { --halo-color: var(--basket-halo-apple); }
-    .basket[data-type="pera"], .basket[data-halo-type="pera"] { --halo-color: var(--basket-halo-pear); }
-    .basket[data-type="banana"], .basket[data-halo-type="banana"] { --halo-color: var(--basket-halo-banana); }
-    .basket[data-type="naranja"], .basket[data-halo-type="naranja"] { --halo-color: var(--basket-halo-orange); }
-
     .basket-wrap-clone { z-index: 2; }
 
-    .basket.feedback-good,
-    .basket.feedback-bad {
-      --halo-blur: var(--basket-feedback-blur);
-      --halo-opacity: var(--basket-feedback-opacity);
+    .basket.feedback-good { animation: good-flash var(--feedback-duration) ease-out; }
+    .basket.feedback-bad { animation: bad-flash var(--feedback-duration) ease-out; }
+
+    @keyframes good-flash {
+      0%, 100% { filter: none; }
+      20%, 65% { filter: drop-shadow(0 0 8px var(--good)) drop-shadow(0 0 18px var(--good)) brightness(1.5); }
     }
-    .basket.feedback-good { --halo-color: var(--basket-feedback-good); }
-    .basket.feedback-bad { --halo-color: var(--basket-feedback-bad); }
+
+    @keyframes bad-flash {
+      0%, 100% { filter: none; }
+      20%, 65% { filter: drop-shadow(0 0 8px var(--bad)) drop-shadow(0 0 18px var(--bad)) brightness(1.25); }
+    }
 
     .overlay {
       position: absolute;
@@ -776,7 +765,6 @@
     let basketElements = new Map();
     let basketAnimations = new Set();
     let basketWrapClones = new Set();
-    const basketFeedbackTimers = new WeakMap();
     let activeFruits = [];
     let nextFruitId = 1;
     let spawnElapsedMs = 0;
@@ -966,7 +954,7 @@
         const clone = basket.cloneNode(false);
         clone.removeAttribute("id");
         clone.removeAttribute("data-type");
-        clone.dataset.haloType = typeId;
+        clone.classList.remove("feedback-good", "feedback-bad");
         clone.classList.add("basket-wrap-clone");
         clone.alt = "";
         clone.setAttribute("aria-hidden", "true");
@@ -1093,17 +1081,10 @@
 
     function showBasketFeedback(basket, isCorrect) {
       const className = isCorrect ? "feedback-good" : "feedback-bad";
-      window.clearTimeout(basketFeedbackTimers.get(basket));
-      const clone = [...basketWrapClones].find((item) => item.src === basket.src);
-      const visuals = clone ? [basket, clone] : [basket];
-      visuals.forEach((item) => {
-        item.classList.remove("feedback-good", "feedback-bad");
-        item.classList.add(className);
-      });
-      basketFeedbackTimers.set(basket, window.setTimeout(() => {
-        visuals.forEach((item) => item.classList.remove(className));
-        basketFeedbackTimers.delete(basket);
-      }, GAME_CONFIG.feedbackDuration));
+      basket.classList.remove("feedback-good", "feedback-bad");
+      void basket.offsetWidth;
+      basket.classList.add(className);
+      window.setTimeout(() => basket.classList.remove(className), GAME_CONFIG.feedbackDuration);
     }
 
     function playTone(kind) {

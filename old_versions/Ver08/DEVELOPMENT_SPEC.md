@@ -438,8 +438,6 @@ Cuando está activada, cada error resta una correcta sin permitir que el progres
 
 El feedback debe ser localizado y claro.
 
-Desde v0.3.2, cada canasta tiene siempre un halo suave que sigue la transparencia real de su PNG y utiliza un color propio. El de manzana es rosado/coral para distinguirlo del rojo puro de error. En una captura, el halo habitual se reemplaza inmediatamente por uno verde de acierto o rojo puro de error; al terminar el feedback, vuelve inmediatamente el halo habitual. Nunca debe existir un estado visual sin halo ni combinarse el halo habitual con el de feedback.
-
 ## Captura correcta
 
 La canasta involucrada puede mostrar brevemente:
