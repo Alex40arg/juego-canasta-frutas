@@ -598,8 +598,6 @@ La opción funcional `Animación de canastas` permite activar o desactivar el mo
 
 La configuración Custom incluye velocidad inicial, velocidad máxima, máximo de frutas activas e intervalo de spawn. Desde v0.4, Música y Efectos de sonido tienen cada uno su propio interruptor ON/OFF y slider de volumen de 0 a 100, con valores iniciales de 70 y 80 respectivamente. Los cambios de volumen se aplican en tiempo real.
 
-Desde v0.4.4, Configuración utiliza un panel responsive de dos columnas en 1920×1080 y 1366×768: controles generales a la izquierda, Parámetros Custom a la derecha y Volver centrado debajo de ambas. En esas resoluciones el panel completo debe verse sin scroll; en pantallas más pequeñas puede pasar a una columna con scroll como respaldo.
-
 Evitar crear opciones que todavía no tengan función real.
 
 ---

@@ -283,19 +283,3 @@
 
 ### Estado
 - Sintaxis JavaScript, estructura y conservación del código JavaScript, Configuración y `banner.png` verificadas; cálculos de espacio para 1920×1080 y 1366×768 sin desborde estimado; `git diff --check` correcto. El navegador integrado bloqueó la apertura del archivo local por su política de URL: pendientes la comprobación visual real, hover/click, navegación, música y ausencia de errores en navegador de escritorio.
-
-## Ver 16 — v0.4.4 — 2026-09-26
-
-### Cambios
-- Reorganizada Configuración en un panel responsive de dos columnas: controles generales a la izquierda y Parámetros Custom a la derecha, con Volver centrado debajo de ambas.
-- Ampliado el panel y ajustados ligeramente tipografía, controles y espaciados; el scroll queda sólo como respaldo para pantallas pequeñas.
-- Registrada la nueva disposición en `DEVELOPMENT_SPEC.md` y preservada v0.4.3 en `old_versions/Ver15/` sólo con archivos de texto, verificados por SHA-256.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver15/
-
-### Estado
-- Sintaxis y conservación exacta del JavaScript verificadas. Comprobados estáticamente el orden de las columnas, todos los controles, límites Custom, accesos rápidos y reglas responsive; `git diff --check` correcto. El espacio calculado para 1920×1080 y 1366×768 cabe sin scroll, pero la política de URL del navegador integrado bloqueó la prueba real del archivo local y prohibió repetirla por otra vía de navegador. Pendientes: inspección visual en ambas resoluciones, interacción real con todos los controles y comprobación de consola en Chrome/Edge de escritorio.
