@@ -319,19 +319,3 @@
 
 ### Estado
 - Sintaxis JavaScript correcta. Un harness aislado verificó inicio, HUD, barra y finalización exacta con objetivos 25, 50, 100 y 200; también el límite de 200 y una penalización que resta sin bajar de cero. El manejador real de clics cargó los cuatro valores y CSS conserva una fila flexible. La política de URL del navegador integrado bloqueó `file://` y prohibió reintentar por otra vía de navegador. Pendiente: prueba visual y de consola en Chrome/Edge de escritorio.
-
-## Ver 18 — v0.4.6 — 2026-09-26
-
-### Cambios
-- Deshabilitados el menú contextual y la selección o arrastre accidental de objetos del juego, conservando la edición de los campos de configuración.
-- Predeterminada la penalización «Resta 1 correcta»; «Solo suma error» permanece seleccionable.
-- Renombrado el panel a «Parámetros». Sus cuatro campos muestran los valores del preset elegido, quedan deshabilitados fuera de Custom y conservan los valores escritos al volver a Custom.
-- Preservada v0.4.5 en `old_versions/Ver17/` con archivos de texto verificados por SHA-256, sin copiar assets.
-
-### Archivos afectados
-- index.html
-- LOG.md
-- old_versions/Ver17/
-
-### Estado
-- Sintaxis JavaScript y `git diff --check` correctos. Un harness aislado verificó valores y estado disabled de Fácil, Normal, Difícil y Custom, conservación de valores Custom al cambiar de preset, selección predeterminada de penalización y presencia de los bloqueos de menú contextual, selección y arrastre. Pendiente: prueba visual y de interacción real en Chrome/Edge de escritorio.
