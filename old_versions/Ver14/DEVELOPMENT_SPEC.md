@@ -576,8 +576,6 @@ Usá ← y → para mover las canastas
 
 No implementar todavía instrucciones extensas.
 
-Desde v0.4.3, el menú presenta `assets/banner.png` centrado arriba y sin deformación. El título queda integrado en esa imagen, mientras que los botones Jugar y Configuración flotan debajo, ampliados sólo en el menú. La indicación breve aparece al final. El botón Jugar tiene una respiración visual sutil y continua, y la composición se ajusta a la altura disponible sin desplazar elementos fuera de pantalla. Configuración conserva su panel propio.
-
 Las instrucciones completas deben redactarse cerca del final del proyecto, cuando las reglas estén estabilizadas.
 
 ---

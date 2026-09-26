@@ -264,22 +264,3 @@
 
 ### Estado
 - Sintaxis JavaScript y `git diff --check` verificados. En Chrome y Edge automatizados se comprobó el descenso de volumen durante unos 3 segundos, la pausa al llegar a cero, el reinicio de la música del menú desde 0 y la cancelación limpia del fade al reintentar o volver antes de tiempo. Sin errores JavaScript. Pendiente: escucha manual del efecto en navegadores de escritorio.
-
-## Ver 15 — v0.4.3 — 2026-09-26
-
-### Cambios
-- Integrado `assets/banner.png` en el menú principal, centrado y proporcional, con margen superior responsive.
-- Eliminado el panel visual del menú y ocultado el título HTML duplicado, conservándolo para accesibilidad.
-- Ampliados sólo los botones del menú; la explicación existente quedó debajo de ambos.
-- Agregada una respiración sutil al botón Jugar sin interferir con hover o click y con respeto a movimiento reducido.
-- Ajustados ancho del banner, botones y separaciones según el viewport; Configuración conserva su panel.
-- Preservada v0.4.2 en `old_versions/Ver14/` con archivos de texto verificados por SHA-256, sin copiar recursos estáticos.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver14/
-
-### Estado
-- Sintaxis JavaScript, estructura y conservación del código JavaScript, Configuración y `banner.png` verificadas; cálculos de espacio para 1920×1080 y 1366×768 sin desborde estimado; `git diff --check` correcto. El navegador integrado bloqueó la apertura del archivo local por su política de URL: pendientes la comprobación visual real, hover/click, navegación, música y ausencia de errores en navegador de escritorio.
