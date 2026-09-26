@@ -249,18 +249,3 @@
 
 ### Estado
 - Sintaxis JavaScript y `git diff --check` verificados. En Chrome y Edge automatizados, sin desactivar autoplay, se comprobó silencio antes de interactuar, inicio con clic libre o teclado, continuidad al entrar en Configuración, cambio a una sola pista de gameplay y ausencia de errores JavaScript o rechazos de `play()` sin manejar. Pendiente: escucha manual en navegadores de escritorio.
-
-## Ver 14 — v0.4.2 — 2026-09-25
-
-### Cambios
-- Al completarse la partida, la música de gameplay baja gradualmente hasta silencio durante 3 segundos y luego se pausa.
-- Al volver al menú, `menu.mp3` se reinicia desde el principio; Reintentar y Volver al menú cancelan cualquier fade pendiente.
-- Preservada v0.4.1 en `old_versions/Ver13/` sólo con archivos de texto.
-
-### Archivos afectados
-- index.html
-- LOG.md
-- old_versions/Ver13/
-
-### Estado
-- Sintaxis JavaScript y `git diff --check` verificados. En Chrome y Edge automatizados se comprobó el descenso de volumen durante unos 3 segundos, la pausa al llegar a cero, el reinicio de la música del menú desde 0 y la cancelación limpia del fade al reintentar o volver antes de tiempo. Sin errores JavaScript. Pendiente: escucha manual del efecto en navegadores de escritorio.

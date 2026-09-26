@@ -1,4 +1,4 @@
-<!-- Version: v0.4.2 -->
+<!-- Version: v0.4 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -827,8 +827,7 @@
       effects: Object.freeze({ correct: "sound_effects/good.mp3", error: "sound_effects/error.mp3" }),
       musicVolume: 70,
       effectsVolume: 80,
-      effectVoices: 2,
-      gameFadeOutDuration: 3000
+      effectVoices: 2
     });
 
     const FRUIT_TYPES = Object.freeze([
@@ -899,8 +898,6 @@
     ]));
     const nextEffectVoice = { correct: 0, error: 0 };
     let currentGameMusic = null;
-    let gameMusicFadeFactor = 1;
-    let gameMusicFadeTimer = 0;
     let lastFruitIndex = -1;
     let fruitStreak = 0;
     let lastColumnIndex = -1;
@@ -933,7 +930,6 @@
       const musicLevel = Number(musicVolume.value) / 100;
       menuMusic.volume = musicLevel;
       gameplayMusic.forEach((track) => { track.volume = musicLevel; });
-      if (currentGameMusic) currentGameMusic.volume = musicLevel * gameMusicFadeFactor;
       const effectsLevel = Number(effectsVolume.value) / 100;
       Object.values(effects).flat().forEach((effect) => { effect.volume = effectsLevel; });
       musicVolumeValue.value = `${musicVolume.value}%`;
@@ -951,39 +947,11 @@
       }
     }
 
-    function activateMenuMusicOnFirstInteraction() {
-      if (gameState === "menu") syncMusic();
-      document.removeEventListener("pointerdown", activateMenuMusicOnFirstInteraction);
-      document.removeEventListener("keydown", activateMenuMusicOnFirstInteraction);
-    }
-
     function startGameMusic() {
-      cancelGameMusicFade();
       stopAudio(currentGameMusic, true);
       currentGameMusic = gameplayMusic[Math.floor(Math.random() * gameplayMusic.length)];
       currentGameMusic.currentTime = 0;
       syncMusic();
-    }
-
-    function cancelGameMusicFade() {
-      window.clearInterval(gameMusicFadeTimer);
-      gameMusicFadeTimer = 0;
-      gameMusicFadeFactor = 1;
-      updateAudioVolumes();
-    }
-
-    function fadeOutGameMusic() {
-      if (!currentGameMusic || currentGameMusic.paused) return;
-      const startedAt = performance.now();
-      gameMusicFadeTimer = window.setInterval(() => {
-        gameMusicFadeFactor = Math.max(0, 1 - (performance.now() - startedAt) / AUDIO_CONFIG.gameFadeOutDuration);
-        updateAudioVolumes();
-        if (gameMusicFadeFactor === 0) {
-          window.clearInterval(gameMusicFadeTimer);
-          gameMusicFadeTimer = 0;
-          stopAudio(currentGameMusic);
-        }
-      }, 50);
     }
 
     function playEffect(kind) {
@@ -1431,7 +1399,6 @@
 
     function finishGame() {
       gameState = "finished";
-      fadeOutGameMusic();
       playfield.classList.remove("is-paused");
       window.cancelAnimationFrame(animationFrameId);
       clearBasketMotion();
@@ -1445,7 +1412,6 @@
 
     function returnToMenu() {
       gameState = "menu";
-      cancelGameMusicFade();
       playfield.classList.remove("is-paused");
       window.cancelAnimationFrame(animationFrameId);
       animationFrameId = 0;
@@ -1458,13 +1424,10 @@
       showScreen("menu");
       stopAudio(currentGameMusic, true);
       currentGameMusic = null;
-      stopAudio(menuMusic, true);
       syncMusic();
     }
 
     document.querySelector("#playButton").addEventListener("click", startGame);
-    document.addEventListener("pointerdown", activateMenuMusicOnFirstInteraction);
-    document.addEventListener("keydown", activateMenuMusicOnFirstInteraction);
     document.querySelector("#retryButton").addEventListener("click", startGame);
     document.querySelector("#menuButton").addEventListener("click", returnToMenu);
     document.querySelector("#continueButton").addEventListener("click", () => {

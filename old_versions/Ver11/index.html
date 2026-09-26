@@ -1,4 +1,4 @@
-<!-- Version: v0.4.2 -->
+<!-- Version: v0.3.4 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -193,15 +193,6 @@
     }
 
     .setting-row input[type="checkbox"] { width: 26px; height: 26px; accent-color: var(--gold); }
-
-    .setting-row input[type="range"] {
-      width: min(48%, 210px);
-      accent-color: var(--gold);
-      cursor: pointer;
-    }
-
-    .setting-value { min-width: 42px; text-align: right; color: var(--gold); }
-    .setting-switch { display: flex; align-items: center; gap: 10px; }
 
     .setting-row input[type="number"],
     .setting-row select {
@@ -631,23 +622,9 @@
             <option value="subtract">Resta 1 correcta</option>
           </select>
         </label>
-        <label class="setting-row" for="musicEnabled">
-          <span>Música</span>
-          <span class="setting-switch"><span id="musicState" class="setting-value">ON</span><input id="musicEnabled" type="checkbox" checked></span>
-        </label>
-        <label class="setting-row" for="musicVolume">
-          <span>Volumen de música</span>
-          <input id="musicVolume" type="range" min="0" max="100" value="70">
-          <output id="musicVolumeValue" class="setting-value" for="musicVolume">70%</output>
-        </label>
         <label class="setting-row" for="soundEnabled">
-          <span>Efectos de sonido</span>
-          <span class="setting-switch"><span id="soundState" class="setting-value">ON</span><input id="soundEnabled" type="checkbox" checked></span>
-        </label>
-        <label class="setting-row" for="effectsVolume">
-          <span>Volumen de efectos</span>
-          <input id="effectsVolume" type="range" min="0" max="100" value="80">
-          <output id="effectsVolumeValue" class="setting-value" for="effectsVolume">80%</output>
+          <span>Sonidos</span>
+          <input id="soundEnabled" type="checkbox" checked>
         </label>
         <label class="setting-row" for="basketAnimationEnabled">
           <span>Animación de canastas</span>
@@ -818,19 +795,6 @@
       penalizeErrors: true
     });
 
-    const AUDIO_CONFIG = Object.freeze({
-      menuTrack: "music/menu.mp3",
-      gameplayTracks: Object.freeze([
-        "music/music-1.mp3", "music/music-2.mp3", "music/music-3.mp3",
-        "music/music-4.mp3", "music/music-5.mp3"
-      ]),
-      effects: Object.freeze({ correct: "sound_effects/good.mp3", error: "sound_effects/error.mp3" }),
-      musicVolume: 70,
-      effectsVolume: 80,
-      effectVoices: 2,
-      gameFadeOutDuration: 3000
-    });
-
     const FRUIT_TYPES = Object.freeze([
       { id: "manzana", name: "manzana", fruit: "assets/manzana.png", basket: "assets/canasta_manzana.png" },
       { id: "pera", name: "pera", fruit: "assets/pera.png", basket: "assets/canasta_pera.png" },
@@ -864,11 +828,6 @@
     const difficultySelect = document.querySelector("#difficultySelect");
     const targetCorrectInput = document.querySelector("#targetCorrectInput");
     const errorPenaltySelect = document.querySelector("#errorPenaltySelect");
-    const musicEnabled = document.querySelector("#musicEnabled");
-    const musicVolume = document.querySelector("#musicVolume");
-    const musicVolumeValue = document.querySelector("#musicVolumeValue");
-    const effectsVolume = document.querySelector("#effectsVolume");
-    const effectsVolumeValue = document.querySelector("#effectsVolumeValue");
     const soundEnabled = document.querySelector("#soundEnabled");
     const basketAnimationEnabled = document.querySelector("#basketAnimationEnabled");
     const customSettings = document.querySelector("#customSettings");
@@ -892,15 +851,7 @@
     let lastFrameTime = 0;
     let animationFrameId = 0;
     let gameState = "menu";
-    const menuMusic = new Audio(AUDIO_CONFIG.menuTrack);
-    const gameplayMusic = AUDIO_CONFIG.gameplayTracks.map((path) => new Audio(path));
-    const effects = Object.fromEntries(Object.entries(AUDIO_CONFIG.effects).map(([kind, path]) => [
-      kind, Array.from({ length: AUDIO_CONFIG.effectVoices }, () => new Audio(path))
-    ]));
-    const nextEffectVoice = { correct: 0, error: 0 };
-    let currentGameMusic = null;
-    let gameMusicFadeFactor = 1;
-    let gameMusicFadeTimer = 0;
+    let audioContext = null;
     let lastFruitIndex = -1;
     let fruitStreak = 0;
     let lastColumnIndex = -1;
@@ -912,92 +863,6 @@
     document.documentElement.style.setProperty("--basket-bottom", `${GAME_CONFIG.basketBottom}px`);
     document.documentElement.style.setProperty("--feedback-duration", `${GAME_CONFIG.feedbackDuration}ms`);
     targetValue.textContent = DEFAULT_CUSTOM_SETTINGS.targetCorrectFruits;
-    musicVolume.value = AUDIO_CONFIG.musicVolume;
-    effectsVolume.value = AUDIO_CONFIG.effectsVolume;
-    menuMusic.loop = true;
-    gameplayMusic.forEach((track) => { track.loop = true; });
-
-    function playAudio(audio) {
-      // Un bloqueo de autoplay o una pausa durante la carga no debe dejar una promesa rechazada.
-      const playAttempt = audio.play();
-      if (playAttempt) playAttempt.catch(() => {});
-    }
-
-    function stopAudio(audio, reset = false) {
-      if (!audio) return;
-      audio.pause();
-      if (reset) audio.currentTime = 0;
-    }
-
-    function updateAudioVolumes() {
-      const musicLevel = Number(musicVolume.value) / 100;
-      menuMusic.volume = musicLevel;
-      gameplayMusic.forEach((track) => { track.volume = musicLevel; });
-      if (currentGameMusic) currentGameMusic.volume = musicLevel * gameMusicFadeFactor;
-      const effectsLevel = Number(effectsVolume.value) / 100;
-      Object.values(effects).flat().forEach((effect) => { effect.volume = effectsLevel; });
-      musicVolumeValue.value = `${musicVolume.value}%`;
-      effectsVolumeValue.value = `${effectsVolume.value}%`;
-    }
-
-    function syncMusic() {
-      const inGame = gameState === "playing" || gameState === "paused" || gameState === "finished";
-      const target = inGame ? currentGameMusic : menuMusic;
-      stopAudio(inGame ? menuMusic : currentGameMusic);
-      if (!musicEnabled.checked) {
-        stopAudio(target);
-      } else if (target && target.paused) {
-        playAudio(target);
-      }
-    }
-
-    function activateMenuMusicOnFirstInteraction() {
-      if (gameState === "menu") syncMusic();
-      document.removeEventListener("pointerdown", activateMenuMusicOnFirstInteraction);
-      document.removeEventListener("keydown", activateMenuMusicOnFirstInteraction);
-    }
-
-    function startGameMusic() {
-      cancelGameMusicFade();
-      stopAudio(currentGameMusic, true);
-      currentGameMusic = gameplayMusic[Math.floor(Math.random() * gameplayMusic.length)];
-      currentGameMusic.currentTime = 0;
-      syncMusic();
-    }
-
-    function cancelGameMusicFade() {
-      window.clearInterval(gameMusicFadeTimer);
-      gameMusicFadeTimer = 0;
-      gameMusicFadeFactor = 1;
-      updateAudioVolumes();
-    }
-
-    function fadeOutGameMusic() {
-      if (!currentGameMusic || currentGameMusic.paused) return;
-      const startedAt = performance.now();
-      gameMusicFadeTimer = window.setInterval(() => {
-        gameMusicFadeFactor = Math.max(0, 1 - (performance.now() - startedAt) / AUDIO_CONFIG.gameFadeOutDuration);
-        updateAudioVolumes();
-        if (gameMusicFadeFactor === 0) {
-          window.clearInterval(gameMusicFadeTimer);
-          gameMusicFadeTimer = 0;
-          stopAudio(currentGameMusic);
-        }
-      }, 50);
-    }
-
-    function playEffect(kind) {
-      if (!soundEnabled.checked) return;
-      const voices = effects[kind];
-      const freeVoice = voices.find((voice) => voice.paused);
-      const voiceIndex = freeVoice ? voices.indexOf(freeVoice) : nextEffectVoice[kind];
-      const voice = voices[voiceIndex];
-      nextEffectVoice[kind] = (voiceIndex + 1) % voices.length;
-      stopAudio(voice, true);
-      playAudio(voice);
-    }
-
-    updateAudioVolumes();
 
     function clampInteger(value, limits, fallback) {
       const parsed = Number.parseInt(value, 10);
@@ -1292,11 +1157,11 @@
 
       if (isCorrect) {
         correct += 1;
-        playEffect("correct");
+        playTone("correct");
       } else {
         errors += 1;
         if (currentGameConfig.penalizeErrors) correct = Math.max(0, correct - 1);
-        playEffect("error");
+        playTone("error");
       }
 
       showBasketFeedback(basket, isCorrect);
@@ -1322,6 +1187,27 @@
         visuals.forEach((item) => item.classList.remove(className));
         basketFeedbackTimers.delete(basket);
       }, GAME_CONFIG.feedbackDuration));
+    }
+
+    function playTone(kind) {
+      if (!soundEnabled.checked) return;
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!audioContext) audioContext = new AudioContextClass();
+      if (audioContext.state === "suspended") audioContext.resume();
+
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const now = audioContext.currentTime;
+      oscillator.type = kind === "correct" ? "sine" : "square";
+      oscillator.frequency.setValueAtTime(kind === "correct" ? 620 : 185, now);
+      if (kind === "correct") oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.11);
+      gain.gain.setValueAtTime(kind === "correct" ? 0.075 : 0.055, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      oscillator.connect(gain).connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.17);
     }
 
     function formatTime(milliseconds) {
@@ -1408,7 +1294,6 @@
       pauseOverlay.classList.remove("visible");
       endOverlay.classList.remove("visible");
       showScreen("game");
-      startGameMusic();
       initializeBaskets();
       clearActiveFruits();
       spawnFruit();
@@ -1431,7 +1316,6 @@
 
     function finishGame() {
       gameState = "finished";
-      fadeOutGameMusic();
       playfield.classList.remove("is-paused");
       window.cancelAnimationFrame(animationFrameId);
       clearBasketMotion();
@@ -1445,7 +1329,6 @@
 
     function returnToMenu() {
       gameState = "menu";
-      cancelGameMusicFade();
       playfield.classList.remove("is-paused");
       window.cancelAnimationFrame(animationFrameId);
       animationFrameId = 0;
@@ -1456,15 +1339,9 @@
       pauseOverlay.classList.remove("visible");
       endOverlay.classList.remove("visible");
       showScreen("menu");
-      stopAudio(currentGameMusic, true);
-      currentGameMusic = null;
-      stopAudio(menuMusic, true);
-      syncMusic();
     }
 
     document.querySelector("#playButton").addEventListener("click", startGame);
-    document.addEventListener("pointerdown", activateMenuMusicOnFirstInteraction);
-    document.addEventListener("keydown", activateMenuMusicOnFirstInteraction);
     document.querySelector("#retryButton").addEventListener("click", startGame);
     document.querySelector("#menuButton").addEventListener("click", returnToMenu);
     document.querySelector("#continueButton").addEventListener("click", () => {
@@ -1473,24 +1350,8 @@
     document.querySelector("#pauseMenuButton").addEventListener("click", () => {
       if (gameState === "paused") returnToMenu();
     });
-    document.querySelector("#settingsButton").addEventListener("click", () => {
-      showScreen("settings");
-      syncMusic();
-    });
-    document.querySelector("#settingsBackButton").addEventListener("click", () => {
-      showScreen("menu");
-      syncMusic();
-    });
-    musicEnabled.addEventListener("change", () => {
-      document.querySelector("#musicState").textContent = musicEnabled.checked ? "ON" : "OFF";
-      syncMusic();
-    });
-    soundEnabled.addEventListener("change", () => {
-      document.querySelector("#soundState").textContent = soundEnabled.checked ? "ON" : "OFF";
-      if (!soundEnabled.checked) Object.values(effects).flat().forEach((voice) => stopAudio(voice, true));
-    });
-    musicVolume.addEventListener("input", updateAudioVolumes);
-    effectsVolume.addEventListener("input", updateAudioVolumes);
+    document.querySelector("#settingsButton").addEventListener("click", () => showScreen("settings"));
+    document.querySelector("#settingsBackButton").addEventListener("click", () => showScreen("menu"));
     difficultySelect.addEventListener("change", updateCustomControls);
     document.querySelectorAll(".target-shortcut").forEach((button) => {
       button.addEventListener("click", () => {

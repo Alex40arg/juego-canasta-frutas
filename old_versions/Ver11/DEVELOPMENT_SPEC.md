@@ -488,7 +488,9 @@ Los sonidos deben ser:
 - fácilmente diferenciables;
 - no estridentes.
 
-Desde v0.4 se utilizan `sound_effects/good.mp3` para aciertos y `sound_effects/error.mp3` para errores. Los efectos pueden superponerse cuando hay capturas cercanas y tienen activación y volumen independientes de la música.
+Para las primeras versiones pueden generarse mediante Web Audio API si resulta conveniente.
+
+Posteriormente pueden reemplazarse por archivos reales.
 
 ---
 
@@ -504,7 +506,11 @@ La música debe tener una estética:
 - arcade;
 - apropiada para un escenario veraniego y colorido.
 
-Desde v0.4, `music/menu.mp3` suena en loop en Menú y Configuración sin reiniciarse al pasar de una a otra. Cada nueva partida, incluido Reintentar, sortea independientemente una pista entre `music/music-1.mp3` y `music/music-5.mp3`, con repeticiones permitidas. Esa pista suena en loop durante la partida, la pausa y la pantalla final hasta reintentar o volver al menú. Los cambios de pista son directos y nunca deben dejar dos músicas simultáneas.
+La música puede generarse posteriormente mediante herramientas externas.
+
+No es necesario que Codex genere música.
+
+La música NO es requisito obligatorio de v0.1.
 
 ---
 
@@ -589,12 +595,12 @@ Parámetros funcionales desde v0.2:
 - preset de dificultad;
 - cantidad objetivo;
 - penalización de errores;
-- efectos de sonido;
+- sonido;
 - configuración Custom.
 
 La opción funcional `Animación de canastas` permite activar o desactivar el movimiento visual circular. Su estado predeterminado es activado y puede cambiarse antes de iniciar una partida.
 
-La configuración Custom incluye velocidad inicial, velocidad máxima, máximo de frutas activas e intervalo de spawn. Desde v0.4, Música y Efectos de sonido tienen cada uno su propio interruptor ON/OFF y slider de volumen de 0 a 100, con valores iniciales de 70 y 80 respectivamente. Los cambios de volumen se aplican en tiempo real.
+La configuración Custom incluye velocidad inicial, velocidad máxima, máximo de frutas activas e intervalo de spawn. La música continúa fuera del alcance actual.
 
 Evitar crear opciones que todavía no tengan función real.
 
@@ -1003,7 +1009,15 @@ No agregar combos, multiplicadores o bonificaciones sin una decisión específic
 
 # 39. Sonido configurable
 
-Desde v0.4 existen controles separados de Música y Efectos de sonido. Desactivar uno no afecta al otro. Al volver a activar Música, se reproduce la pista correspondiente a la pantalla o partida actual. La reproducción se inicia tras una interacción del usuario para respetar las restricciones de autoplay del navegador.
+Posteriormente debe existir una opción para:
+
+```text
+Sonido: ON / OFF
+```
+
+La música podrá tener su propio control si se incorpora.
+
+No obligar a reproducir audio si el usuario lo desactiva.
 
 ---
 
@@ -1416,7 +1430,12 @@ Mantener buen rendimiento.
 
 # 56. PASO 9 — Música y audio final
 
-Implementado en v0.4: música de menú y gameplay, efectos MP3, volúmenes independientes y opciones ON/OFF para ambos grupos.
+Agregar:
+
+- música;
+- efectos finales;
+- niveles de volumen si resultan necesarios;
+- opción de mute.
 
 ---
 
