@@ -403,10 +403,10 @@ La condición principal de victoria será alcanzar una cantidad determinada de f
 Ejemplo:
 
 ```text
-Objetivo predeterminado: 50 frutas correctas
+Objetivo: 20 frutas correctas
 ```
 
-La cantidad objetivo es configurable antes de comenzar la partida y se mantiene al reintentar. Existen accesos rápidos para 25, 50, 100 y 200 que actualizan el mismo campo numérico utilizado por el juego; la entrada manual de otros valores entre 1 y 500 continúa disponible.
+La cantidad objetivo es configurable antes de comenzar la partida y se mantiene al reintentar. Existen accesos rápidos para 10, 20, 30 y 50 que actualizan el mismo campo numérico utilizado por el juego; la entrada manual de otros valores continúa disponible.
 
 No utilizar inicialmente una partida limitada exclusivamente por tiempo.
 

@@ -1,4 +1,4 @@
-<!-- Version: v0.4.5 -->
+<!-- Version: v0.4.4 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -671,13 +671,13 @@
         </label>
         <label class="setting-row" for="targetCorrectInput">
           <span>Objetivo de correctas</span>
-          <input id="targetCorrectInput" type="number" min="1" max="500" step="1" value="50">
+          <input id="targetCorrectInput" type="number" min="1" max="100" step="1" value="20">
         </label>
         <div class="target-shortcuts" aria-label="Objetivos rápidos">
-          <button class="target-shortcut" type="button" data-target="25" aria-label="Elegir objetivo 25">25</button>
+          <button class="target-shortcut" type="button" data-target="10" aria-label="Elegir objetivo 10">10</button>
+          <button class="target-shortcut" type="button" data-target="20" aria-label="Elegir objetivo 20">20</button>
+          <button class="target-shortcut" type="button" data-target="30" aria-label="Elegir objetivo 30">30</button>
           <button class="target-shortcut" type="button" data-target="50" aria-label="Elegir objetivo 50">50</button>
-          <button class="target-shortcut" type="button" data-target="100" aria-label="Elegir objetivo 100">100</button>
-          <button class="target-shortcut" type="button" data-target="200" aria-label="Elegir objetivo 200">200</button>
         </div>
         <label class="setting-row" for="errorPenaltySelect">
           <span>Penalización por error</span>
@@ -746,7 +746,7 @@
           <span class="stat-label">Correctas</span>
           <span id="correctValue" class="stat-value">0</span>
         </div>
-        <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Progreso de correctas" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0">
+        <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Progreso de correctas" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0">
           <div id="progressFill" class="progress-fill"></div>
         </div>
         <div class="stat">
@@ -755,7 +755,7 @@
         </div>
         <div class="stat">
           <span class="stat-label">Objetivo</span>
-          <span id="targetValue" class="stat-value">50</span>
+          <span id="targetValue" class="stat-value">20</span>
         </div>
         <div class="stat">
           <span class="stat-label">Tiempo</span>
@@ -862,7 +862,7 @@
       maxFallSpeed: Object.freeze({ min: 120, max: 400 }),
       maxActiveFruits: Object.freeze({ min: 1, max: 4 }),
       spawnInterval: Object.freeze({ min: 700, max: 3000 }),
-      targetCorrectFruits: Object.freeze({ min: 1, max: 500 })
+      targetCorrectFruits: Object.freeze({ min: 1, max: 100 })
     });
 
     const DEFAULT_CUSTOM_SETTINGS = Object.freeze({

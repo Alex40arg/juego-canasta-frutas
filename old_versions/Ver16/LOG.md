@@ -299,23 +299,3 @@
 
 ### Estado
 - Sintaxis y conservación exacta del JavaScript verificadas. Comprobados estáticamente el orden de las columnas, todos los controles, límites Custom, accesos rápidos y reglas responsive; `git diff --check` correcto. El espacio calculado para 1920×1080 y 1366×768 cabe sin scroll, pero la política de URL del navegador integrado bloqueó la prueba real del archivo local y prohibió repetirla por otra vía de navegador. Pendientes: inspección visual en ambas resoluciones, interacción real con todos los controles y comprobación de consola en Chrome/Edge de escritorio.
-
-## Ver 17 — v0.4.5 — 2026-09-26
-
-### Cambios
-- Cambiado el objetivo predeterminado de 20 a 50 en Configuración y en los valores iniciales del HUD y la barra.
-- Reemplazados los accesos rápidos por 25, 50, 100 y 200, conservando el mismo campo y la fila de botones.
-- Ampliado de 100 a 500 el máximo del objetivo en HTML y JavaScript para que 200 no se recorte.
-- Actualizado el objetivo vigente en `DEVELOPMENT_SPEC.md` y preservada v0.4.4 en `old_versions/Ver16/` sólo con archivos de texto, verificados por SHA-256.
-
-### Motivo
-- Probar partidas más largas con el balance actual, sin introducir modo por tiempo ni cambiar velocidades.
-
-### Archivos afectados
-- index.html
-- DEVELOPMENT_SPEC.md
-- LOG.md
-- old_versions/Ver16/
-
-### Estado
-- Sintaxis JavaScript correcta. Un harness aislado verificó inicio, HUD, barra y finalización exacta con objetivos 25, 50, 100 y 200; también el límite de 200 y una penalización que resta sin bajar de cero. El manejador real de clics cargó los cuatro valores y CSS conserva una fila flexible. La política de URL del navegador integrado bloqueó `file://` y prohibió reintentar por otra vía de navegador. Pendiente: prueba visual y de consola en Chrome/Edge de escritorio.
