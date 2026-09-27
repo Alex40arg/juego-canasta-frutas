@@ -1,14 +1,10 @@
-<!-- Version: v0.4.7 -->
+<!-- Version: v0.4.6 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fruit Basket</title>
-  <link rel="preload" as="image" href="assets/manzana.png">
-  <link rel="preload" as="image" href="assets/pera.png">
-  <link rel="preload" as="image" href="assets/banana.png">
-  <link rel="preload" as="image" href="assets/naranja.png">
   <style>
     :root {
       --game-width: 540px;
@@ -904,22 +900,6 @@
       { id: "naranja", name: "naranja", fruit: "assets/naranja.png", basket: "assets/canasta_naranja.png" }
     ]);
 
-    let fruitImagesReady = false;
-    const fruitImagesPreload = Promise.all(FRUIT_TYPES.map(({ fruit }) => {
-      const image = new Image();
-      return new Promise((resolve, reject) => {
-        image.onload = () => {
-          const decoding = typeof image.decode === "function" ? image.decode() : Promise.resolve();
-          decoding.then(() => resolve(image), reject);
-        };
-        image.onerror = reject;
-        image.src = fruit;
-      });
-    })).then((images) => {
-      fruitImagesReady = true;
-      return images;
-    }, () => null);
-
     const fruitSpinDegreesPerPixel = Number.parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue("--fruit-spin-degrees-per-pixel")
     );
@@ -1508,22 +1488,6 @@
       animationFrameId = window.requestAnimationFrame(gameLoop);
     }
 
-    let startPending = false;
-    function startGameWhenImagesReady() {
-      if (fruitImagesReady) {
-        startGame();
-        return;
-      }
-      if (startPending) return;
-      startPending = true;
-      fruitImagesPreload.then((images) => {
-        startPending = false;
-        if (!screens.menu.classList.contains("active")) return;
-        if (images) startGame();
-        else window.alert("No se pudieron cargar las frutas. Recargá la página e intentá de nuevo.");
-      });
-    }
-
     function togglePause() {
       if (gameState === "playing") {
         gameState = "paused";
@@ -1570,7 +1534,7 @@
       syncMusic();
     }
 
-    document.querySelector("#playButton").addEventListener("click", startGameWhenImagesReady);
+    document.querySelector("#playButton").addEventListener("click", startGame);
     document.addEventListener("contextmenu", (event) => event.preventDefault());
     document.querySelector("main").addEventListener("dragstart", (event) => event.preventDefault());
     document.addEventListener("pointerdown", activateMenuMusicOnFirstInteraction);

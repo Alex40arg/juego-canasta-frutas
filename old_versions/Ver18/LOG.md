@@ -335,20 +335,3 @@
 
 ### Estado
 - Sintaxis JavaScript y `git diff --check` correctos. Un harness aislado verificó valores y estado disabled de Fácil, Normal, Difícil y Custom, conservación de valores Custom al cambiar de preset, selección predeterminada de penalización y presencia de los bloqueos de menú contextual, selección y arrastre. Pendiente: prueba visual y de interacción real en Chrome/Edge de escritorio.
-
-## Ver 19 — v0.4.7 — 2026-09-26
-
-### Cambios
-- Precargadas y decodificadas las cuatro imágenes de frutas desde el menú, con espera al pulsar Jugar sólo si aún no están listas.
-- Agregados hints `preload` para iniciar antes la descarga; sin modificar PNG, gameplay ni audio.
-- Preservada v0.4.6 en `old_versions/Ver18/` con archivos de texto verificados por SHA-256, sin duplicar assets.
-- Publicada la versión 2 del Site público: https://fruit-basket-arcade-2026.alexisvorian.chatgpt.site
-
-### Archivos afectados
-- index.html
-- LOG.md
-- old_versions/Ver18/
-- Distribución aislada del Site: `dist/index.html`.
-
-### Estado
-- Sintaxis y `git diff --check` correctos; funciones de spawn, dibujo, loop, captura, inicio y música idénticas a v0.4.6. En una primera carga con respuestas PNG demoradas 2,5 s, Jugar esperó sin crear frutas y el primer sprite apareció completo al iniciar. La URL publicada carga v0.4.7, inicia partida con sprite completo y no mostró errores JavaScript. Pendiente: evaluación visual manual en Chrome/Edge de escritorio.
